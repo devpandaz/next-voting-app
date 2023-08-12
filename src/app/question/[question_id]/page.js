@@ -13,6 +13,7 @@ export default async function Page({ params }) {
 
   const question = await fetch(
     `${API_BASE_URL}/questions/${question_id}`,
+    { cache: "no-store" },
   ).then((res) => res.json());
 
   return (
@@ -44,6 +45,7 @@ export async function generateMetadata({ params }) {
 
   const question = await fetch(
     `${API_BASE_URL}/questions/${question_id}`,
+    { cache: "no-store" },
   ).then((res) => res.json());
 
   return {
@@ -54,6 +56,7 @@ export async function generateMetadata({ params }) {
 export async function generateStaticParams() {
   const questions = await fetch(
     `${API_BASE_URL}/questions/`,
+    { cache: "no-store" },
   ).then((res) => res.json());
 
   return questions.map((question) => ({

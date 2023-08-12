@@ -13,6 +13,7 @@ const API_BASE_URL = process.env.API_BASE_URL;
 export default async function Home() {
   const questions = await fetch(
     `${API_BASE_URL}/questions/`,
+    { cache: "no-store" },
   ).then((res) => res.json());
 
   const user = await currentUser();
