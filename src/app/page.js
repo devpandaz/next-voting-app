@@ -29,6 +29,7 @@ export default async function Home() {
           {questions &&
             questions.map((question) => (
               <Link
+                key={question.id}
                 href={`/question/${question.id}`}
                 className="px-5 py-5 my-5 border-2 border-sky-500 rounded-lg text-center block hover:border-red-500"
               >
