@@ -1,4 +1,3 @@
-import { currentUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Suspense } from "react";
 import prisma from "../../prisma/prisma";
