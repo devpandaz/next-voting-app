@@ -1,4 +1,5 @@
 import Link from "next/link";
+import prisma from "../../../../prisma/prisma";
 
 const path = require("path");
 
@@ -6,19 +7,21 @@ require("dotenv").config({
   path: path.normalize(__dirname + "/../../.env"),
 });
 
-const API_BASE_URL = process.env.API_BASE_URL;
-
 export default async function Page({ params }) {
-  const { question_id } = params;
+  const { questionId } = params;
 
-  const question = await fetch(
-    `${API_BASE_URL}/questions/${question_id}`,
-    { cache: "no-store" },
-  ).then((res) => res.json());
+  const question = await prisma.question.findUniqueOrThrow({
+    where: {
+      id: parseInt(questionId),
+    },
+    include: {
+      choices: true,
+    },
+  });
 
   return (
     <div className="w-fit mx-auto">
-      <h1>{question.question_text}</h1>
+      <h1>{question.questionText}</h1>
       <form>
         {question.choices.length > 0
           ? question.choices.map((choice, index) => (
@@ -29,7 +32,7 @@ export default async function Page({ params }) {
                 id={`choice${index}`}
                 value={"placeholder"}
               />
-              <label htmlFor={`choice${index}`}>{choice}</label>
+              <label htmlFor={`choice${index}`}>{choice.choiceText}</label>
               <br />
             </>
           ))
@@ -41,25 +44,22 @@ export default async function Page({ params }) {
 }
 
 export async function generateMetadata({ params }) {
-  const { question_id } = params;
+  const { questionId } = params;
 
-  const question = await fetch(
-    `${API_BASE_URL}/questions/${question_id}`,
-    { cache: "no-store" },
-  ).then((res) => res.json());
+  const question = await prisma.question.findUniqueOrThrow({
+    where: {
+      id: parseInt(questionId),
+    },
+  });
 
   return {
-    title: question.question_text,
+    title: question.questionText,
   };
 }
 
 export async function generateStaticParams() {
-  const questions = await fetch(
-    `${API_BASE_URL}/questions/`,
-    { cache: "no-store" },
-  ).then((res) => res.json());
-
+  const questions = await prisma.question.findMany();
   return questions.map((question) => ({
-    question_id: question.id.toString(),
+    questionId: question.id.toString(),
   }));
 }

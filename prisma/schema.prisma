@@ -1,0 +1,23 @@
+generator client {
+provider = "prisma-client-js"
+}
+
+datasource db {
+provider = "postgresql"
+url = env("DATABASE_URL")
+}
+
+model Question {
+id Int @id @default(autoincrement())
+questionText String
+datePublished DateTime @db.Date @default(now())
+choices Choice[]
+}
+
+model Choice {
+id Int @id @default(autoincrement())
+choiceText String
+votes Int @default(0)
+question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+questionId Int
+}
