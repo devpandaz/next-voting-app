@@ -1,11 +1,5 @@
-import Link from "next/link";
 import prisma from "../../../../prisma/prisma";
-
-const path = require("path");
-
-require("dotenv").config({
-  path: path.normalize(__dirname + "/../../.env"),
-});
+import VotingForm from "@/components/VotingForm";
 
 export default async function Page({ params }) {
   const { questionId } = params;
@@ -15,32 +9,15 @@ export default async function Page({ params }) {
       id: parseInt(questionId),
     },
     include: {
-      choices: true,
+      choices: {
+        orderBy: {
+          id: "asc",
+        },
+      },
     },
   });
 
-  return (
-    <div className="w-fit mx-auto">
-      <h1>{question.questionText}</h1>
-      <form>
-        {question.choices.length > 0
-          ? question.choices.map((choice, index) => (
-            <>
-              <input
-                type="radio"
-                name="choice"
-                id={`choice${index}`}
-                value={"placeholder"}
-              />
-              <label htmlFor={`choice${index}`}>{choice.choiceText}</label>
-              <br />
-            </>
-          ))
-          : <h3>No choices are available for this poll question.</h3>}
-      </form>
-      <Link href="/">Back to home</Link>
-    </div>
-  );
+  return <VotingForm question={question} />;
 }
 
 export async function generateMetadata({ params }) {
@@ -63,3 +40,5 @@ export async function generateStaticParams() {
     questionId: question.id.toString(),
   }));
 }
+
+export const dynamic = "force-dynamic";

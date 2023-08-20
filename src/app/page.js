@@ -2,12 +2,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import prisma from "../../prisma/prisma";
 
-const path = require("path");
-
-require("dotenv").config({
-  path: path.normalize(__dirname + "/../../.env"),
-});
-
 export default async function Home() {
   const questions = await prisma.question.findMany();
 
@@ -41,3 +35,5 @@ export default async function Home() {
 export const metadata = {
   title: "Your feed",
 };
+
+export const dynamic = "force-dynamic";
