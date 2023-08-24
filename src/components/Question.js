@@ -20,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
 
-export default async function Question({ questionId }) {
+export default function Question({ questionId }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
   const [question, setQuestion] = useState();
@@ -96,7 +96,10 @@ export default async function Question({ questionId }) {
                         className="flex flex-col space-y-1"
                       >
                         {question.choices.map((choice) => (
-                          <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormItem
+                            key={choice.id}
+                            className="flex items-center space-x-3 space-y-0"
+                          >
                             <FormControl>
                               <RadioGroupItem value={choice.id} />
                             </FormControl>
