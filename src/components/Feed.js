@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
+import { LoadingWebsite } from "@/app/loading";
 
 const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
 
@@ -16,6 +17,7 @@ export default function Feed() {
     if (!loading && !user) {
       router.push("/auth/signin");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
   async function fetchQuestions() {
@@ -28,6 +30,7 @@ export default function Feed() {
     if (!loading) {
       fetchQuestions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
   if (loading) {
