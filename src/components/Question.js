@@ -31,6 +31,7 @@ export default function Question({ questionId }) {
     if (!loading && !user) {
       router.push("/auth/signin");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
   async function fetchQuestion() {
@@ -43,6 +44,7 @@ export default function Question({ questionId }) {
     if (!loading) {
       fetchQuestion();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
   if (loading || !question) {

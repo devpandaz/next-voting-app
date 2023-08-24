@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { signIn } from "@/lib/signin";
 
-export default async function SignInPage() {
+export default function SignInPage() {
   const router = useRouter();
   const { toast } = useToast();
 
