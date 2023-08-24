@@ -19,6 +19,7 @@ export default function SignInPage() {
       });
     } else {
       // sign in success
+      // remove this in prod
       console.log(result.user);
       router.push("/feed");
     }
