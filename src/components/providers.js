@@ -1,10 +1,12 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "./theme-provider";
+import { AuthContextProvider } from "@/context/AuthContext";
 
 export default function Providers({ children }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      {children}
+      <AuthContextProvider>
+        {children}
+      </AuthContextProvider>
     </ThemeProvider>
   );
 }

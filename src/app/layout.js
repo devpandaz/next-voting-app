@@ -2,13 +2,13 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import Providers from "@/components/providers";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Django Voting App",
-  description:
-    "The django tutorial, the django voting app, but it's django + nextjs",
+  description: "The Django voting app tutorial, but better, with NextJS. ",
 };
 
 export default function RootLayout({ children }) {
@@ -22,10 +22,11 @@ export default function RootLayout({ children }) {
             <Header />
             {children}
           </div>
+          <Toaster />
         </Providers>
       </body>
     </html>
   );
 }
 
-export const dynamicParams = false;
+export const dynamic = "force-dynamic";

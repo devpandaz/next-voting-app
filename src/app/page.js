@@ -1,39 +1,10 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import prisma from "../../prisma/prisma";
 
-export default async function Home() {
-  const questions = await prisma.question.findMany();
-
-  // const user = await currentUser();
-  // console.log(user);
-
+export default function Home() {
   return (
     <div className="w-fit mx-auto">
-      <h1 className="text-center text-xl">
-        {/*Welcome back, {user.firstName ? user.firstName : user.username}.*/}
-      </h1>
-      <h1 className="text-center text-xl">Public Feed</h1>
-      <Suspense fallback=<h1>Loading...</h1>>
-        <div className="mx-10 max-w-md">
-          {questions &&
-            questions.map((question) => (
-              <Link
-                key={question.id}
-                href={`/question/${question.id}`}
-                className="px-5 py-5 my-5 border-2 border-sky-500 rounded-lg text-center block hover:border-red-500"
-              >
-                {question.questionText}
-              </Link>
-            ))}
-        </div>
-      </Suspense>
+      <h1>Home page</h1>
+      <Link href="/feed">Go to feed</Link>
     </div>
   );
 }
-
-export const metadata = {
-  title: "Your feed",
-};
-
-export const dynamic = "force-dynamic";
