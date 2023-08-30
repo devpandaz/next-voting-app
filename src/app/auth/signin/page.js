@@ -19,31 +19,29 @@ export default function SignInPage() {
       });
     } else {
       // sign in success
-      // remove this in prod
-      console.log(result.user);
       router.push("/feed");
     }
   }
   return (
-    <div className="w-fit mx-auto border-2 border-slate-950 dark:border-slate-50 rounded-lg p-4">
-      <div className="m-3">
-        <Button
-          onClick={() => {
-            handleSignIn("google");
-          }}
-        >
-          <LogIn className="mr-2 h-4 w-4" /> Sign In with Google
-        </Button>
-      </div>
-      <div className="m-3">
-        <Button
-          onClick={() => {
-            handleSignIn("github");
-          }}
-        >
-          <Github className="mr-2 h-4 w-4" /> Sign In with Github
-        </Button>
-      </div>
+    <div className="w-fit mx-auto border-2 border-slate-950 dark:border-slate-50 rounded-lg p-2 flex flex-col justify-center">
+      <Button
+        className="m-3"
+        onClick={() => {
+          handleSignIn("google");
+        }}
+      >
+        <LogIn className="mr-2 h-4 w-4" /> Sign In with Google
+      </Button>
+      {
+        /*<Button
+        className="m-3"
+        onClick={() => {
+          handleSignIn("github");
+        }}
+      >
+        <Github className="mr-2 h-4 w-4" /> Sign In with Github
+      </Button>*/
+      }
     </div>
   );
 }

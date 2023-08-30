@@ -33,14 +33,14 @@ export default function Feed() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  if (loading) {
+  if (loading || !user) {
     return <LoadingWebsite />;
   }
 
   return (
     <div className="w-fit mx-auto">
       <h1 className="text-center text-xl">
-        {/*Welcome back, {user.firstName ? user.firstName : user.username}.*/}
+        Welcome back, {user.displayName}
       </h1>
       <h1 className="text-center text-xl">Public Feed</h1>
       <Suspense fallback=<h1>Loading...</h1>>
@@ -50,7 +50,7 @@ export default function Feed() {
               <Link
                 key={question.id}
                 href={`/feed/${question.id}`}
-                className="px-5 py-5 my-5 border-2 border-sky-500 rounded-lg text-center block hover:border-red-500"
+                className="p-5 my-5 border-2 border-sky-500 rounded-lg text-center block hover:border-red-500"
               >
                 {question.questionText}
               </Link>
@@ -60,7 +60,3 @@ export default function Feed() {
     </div>
   );
 }
-
-export const metadata = {
-  title: "Your feed",
-};

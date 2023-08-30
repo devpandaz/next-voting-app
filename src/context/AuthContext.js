@@ -14,10 +14,21 @@ export const AuthContextProvider = ({
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  async function createUserRecordIfNotExist(uid) {
+    const body = { uid: uid };
+    const res = await fetch("/api/add-user/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then((res) => res.json());
+    console.log(res.user);
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        createUserRecordIfNotExist(user.uid);
       } else {
         setUser(null);
       }

@@ -14,12 +14,12 @@ export async function signIn(method) {
   let provider;
 
   switch (method) {
-    case "google": {
+    case "google":
       provider = new GoogleAuthProvider();
-    }
-    case "github": {
+      break;
+    case "github":
       provider = new GithubAuthProvider();
-    }
+      break;
   }
 
   try {

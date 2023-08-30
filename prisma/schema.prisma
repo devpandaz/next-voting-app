@@ -7,6 +7,11 @@ provider = "postgresql"
 url = env("DATABASE_URL")
 }
 
+model User {
+uid String @id
+votes Choice[]
+}
+
 model Question {
 id Int @id @default(autoincrement())
 questionText String
@@ -20,4 +25,5 @@ choiceText String
 votes Int @default(0)
 question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 questionId Int
+users User[]
 }

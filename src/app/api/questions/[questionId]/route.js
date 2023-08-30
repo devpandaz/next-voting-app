@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/prisma/prisma";
 
-export async function GET(req, { params }) {
-  const { questionId } = params;
+export async function POST(req, { params }) {
+  let { questionId } = params;
+  questionId = parseInt(questionId);
+  const { uid } = await req.json();
   const question = await prisma.question.findUniqueOrThrow({
     where: {
-      id: parseInt(questionId),
+      id: questionId,
     },
     include: {
       choices: {
@@ -16,5 +18,48 @@ export async function GET(req, { params }) {
     },
   });
 
-  return NextResponse.json({ question });
+  const currentChoiceId = (await prisma.choice.findMany({
+    where: {
+      questionId: questionId,
+
+      users: {
+        some: {
+          uid: uid,
+        },
+      },
+    },
+    select: {
+      id: true,
+    },
+  }))[0]?.id;
+
+  // to get users count for every choices of this specific question
+  const choicesWithUsersCount = await prisma.choice.findMany({
+    select: {
+      _count: {
+        select: {
+          users: true,
+        },
+      },
+      id: true,
+    },
+    where: {
+      questionId: questionId,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
+  let totalVotes = 0;
+  choicesWithUsersCount.forEach((choice) => {
+    totalVotes += choice._count.users;
+  });
+
+  return NextResponse.json({
+    question,
+    currentChoiceId,
+    choicesWithUsersCount,
+    totalVotes,
+  });
 }

@@ -8,14 +8,17 @@ import { useToast } from "./ui/use-toast";
 import { useAuthContext } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
   const { user } = useAuthContext();
   const { toast } = useToast();
 
+  console.log(user);
+
   return (
-    <div className="flex justify-center py-3 sticky top-0 bg-slate-200 dark:bg-gray-700 mb-5">
+    <div className="flex justify-center py-3 sticky top-0 bg-slate-200/25 dark:bg-gray-700/25 mb-5 backdrop-blur-sm">
       <div className="flex items-center px-5">
         <Link className="text-2xl font-bold" href={user ? "/feed" : "/"}>
           Django Voting App
@@ -54,6 +57,13 @@ export default function Header() {
           )}
       </div>
       {
+        /*<Image
+        src={user.photoURL}
+        width={20}
+        height={20}
+        alt="profile picture"
+      />/*}
+      {
         /*<SignedIn>
         <div className="flex items-center px-1">
           <UserButton
@@ -68,7 +78,6 @@ export default function Header() {
         </div>
       </SignedIn>*/
       }
-      <hr />
     </div>
   );
 }
