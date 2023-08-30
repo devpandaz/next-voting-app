@@ -73,6 +73,7 @@ export default function Question({ questionId }) {
     return () => {
       pusher_client.unsubscribe(`${questionId}`);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading || !user || !question) {
