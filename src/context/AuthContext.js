@@ -16,7 +16,7 @@ export const AuthContextProvider = ({
 
   async function createUserRecordIfNotExist(uid) {
     const body = { uid: uid };
-    const res = await fetch("/api/add-user/", {
+    const res = await fetch("/api/auth/add-user/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
