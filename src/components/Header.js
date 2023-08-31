@@ -8,7 +8,6 @@ import { useToast } from "./ui/use-toast";
 import { useAuthContext } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();

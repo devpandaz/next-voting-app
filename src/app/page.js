@@ -2,9 +2,7 @@
 import { CardWithForm } from "@/components/card-demo";
 import { CardDemo } from "@/components/card-example";
 import { ContextMenuDemo } from "@/components/context-menu-example";
-import { pusher_client } from "@/lib/pusher_client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   // pusher example

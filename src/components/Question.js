@@ -22,6 +22,8 @@ import { Home } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
 
+const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
+
 export default function Question({ questionId }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
@@ -44,7 +46,7 @@ export default function Question({ questionId }) {
 
   async function fetchQuestion() {
     const body = { uid: user.uid };
-    const res = await fetch(`/api/questions/${questionId}`, {
+    const res = await fetch(`${WEBSITE_BASE_URL}/api/questions/${questionId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -92,7 +94,7 @@ export default function Question({ questionId }) {
           currentChoiceId: currentChoiceId,
           newChoiceId: newChoiceId,
         };
-        const res = await fetch("/api/vote/", {
+        const res = await fetch(`${WEBSITE_BASE_URL}/api/vote/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

@@ -4,6 +4,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { LoadingWebsite } from "@/app/loading";
 
+const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
+
 export const AuthContext = createContext({});
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -16,7 +18,7 @@ export const AuthContextProvider = ({
 
   async function createUserRecordIfNotExist(uid) {
     const body = { uid: uid };
-    const res = await fetch("/api/auth/add-user/", {
+    const res = await fetch(`${WEBSITE_BASE_URL}/api/auth/add-user/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
