@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Home } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
+import QuestionContextMenu from "./QuestionContextMenu";
 
 const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
 
@@ -67,7 +68,7 @@ export default function Question({ questionId }) {
   useEffect(() => {
     const channel = pusher_client.subscribe(`${questionId}`);
 
-    channel.bind("vote", (data) => {
+    channel.bind("update stats", (data) => {
       console.log(data);
       fetchQuestion();
     });
@@ -83,7 +84,7 @@ export default function Question({ questionId }) {
   }
 
   async function onSubmit() {
-    if (!isNaN(newChoiceId) && newChoiceId !== currentChoiceId) {
+    if (newChoiceId !== currentChoiceId) {
       toast({
         title: "Your choice is recorded. ",
       });
@@ -127,85 +128,87 @@ export default function Question({ questionId }) {
         <CardContent>
           {question.choices.length > 0
             ? (
-              <Form {...form}>
-                <div className="flex flex-col items-center">
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="w-2/3 space-y-6"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="choice"
-                      render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          {/*<FormLabel>{question.questionText}</FormLabel>*/}
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={(e) => {
-                                setNewChoiceId(e); // e is the value of the selected choice
+              <QuestionContextMenu
+                uid={user.uid}
+                questionId={questionId}
+                currentChoiceId={currentChoiceId}
+              >
+                <Form {...form}>
+                  <div className="flex flex-col items-center">
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="w-2/3 space-y-6"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="choice"
+                        render={({ field }) => (
+                          <FormItem className="space-y-3">
+                            {/*<FormLabel>{question.questionText}</FormLabel>*/}
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={(e) => {
+                                  setNewChoiceId(e); // e is the value of the selected choice
 
-                                // or new implementation: sync directly after any change in choice
-                              }}
-                              defaultValue={currentChoiceId}
-                              className="flex flex-col space-y-1"
-                            >
-                              {question.choices.map((choice, index) => (
-                                <FormItem
-                                  key={choice.id}
-                                >
-                                  <div className="flex flex-col">
-                                    <div className="flex items-center pb-2">
-                                      <FormControl>
-                                        <RadioGroupItem
-                                          value={choice.id}
-                                        />
-                                      </FormControl>
-                                      <div className="grow pl-2">
-                                        <FormLabel className="font-normal w-full">
-                                          {choice.choiceText}
-                                        </FormLabel>
+                                  // or new implementation: sync directly after any change in choice
+                                }}
+                                defaultValue={currentChoiceId}
+                                className="flex flex-col space-y-1"
+                              >
+                                {question.choices.map((choice, index) => (
+                                  <FormItem
+                                    key={choice.id}
+                                  >
+                                    <div className="flex flex-col">
+                                      <div className="flex items-center pb-2">
+                                        <FormControl>
+                                          <RadioGroupItem
+                                            value={choice.id}
+                                          />
+                                        </FormControl>
+                                        <div className="grow pl-2">
+                                          <FormLabel className="font-normal">
+                                            {choice.choiceText}
+                                            <Progress
+                                              value={parseInt(
+                                                choicesWithUsersCount[index]
+                                                  ._count
+                                                  .users,
+                                              ) / totalVotes * 100}
+                                            />
+                                          </FormLabel>
+                                        </div>
                                       </div>
                                     </div>
-                                    <Progress
-                                      value={parseInt(
-                                        choicesWithUsersCount[index]._count
-                                          .users,
-                                      ) / totalVotes * 100}
-                                    />
-                                    {
-                                      /*<FormLabel className="font-normal">
-                                    {choice.votes}
-                                  </FormLabel>*/
-                                    }
-                                  </div>
-                                </FormItem>
-                              ))}
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex justify-center">
-                      {currentChoiceId
-                        ? (
-                          <Button
-                            type="submit"
-                            disabled={!(newChoiceId &&
-                              newChoiceId !== currentChoiceId)}
-                          >
-                            Resubmit
-                          </Button>
-                        )
-                        : (
-                          <Button type="submit" disabled={!newChoiceId}>
-                            Submit
-                          </Button>
+                                  </FormItem>
+                                ))}
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
                         )}
-                    </div>
-                  </form>
-                </div>
-              </Form>
+                      />
+                      <div className="flex justify-center">
+                        {currentChoiceId
+                          ? (
+                            <Button
+                              type="submit"
+                              disabled={!(newChoiceId &&
+                                newChoiceId !== currentChoiceId)}
+                            >
+                              Resubmit
+                            </Button>
+                          )
+                          : (
+                            <Button type="submit" disabled={!newChoiceId}>
+                              Submit
+                            </Button>
+                          )}
+                      </div>
+                    </form>
+                  </div>
+                </Form>
+              </QuestionContextMenu>
             )
             : <h3>No choices are available for this poll question.</h3>}
         </CardContent>

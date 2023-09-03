@@ -21,9 +21,13 @@ export default function Feed() {
   }, [loading, user]);
 
   async function fetchQuestions() {
-    const res = await fetch(`${WEBSITE_BASE_URL}/api/questions/`);
-    const data = await res.json();
-    setQuestions(data.questions);
+    try {
+      const res = await fetch(`${WEBSITE_BASE_URL}/api/questions/`);
+      const data = await res.json();
+      setQuestions(data.questions);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   useEffect(() => {

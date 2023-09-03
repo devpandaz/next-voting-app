@@ -18,12 +18,16 @@ export const AuthContextProvider = ({
 
   async function createUserRecordIfNotExist(uid) {
     const body = { uid: uid };
-    const res = await fetch(`${WEBSITE_BASE_URL}/api/auth/add-user/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then((res) => res.json());
-    console.log(res.user);
+    try {
+      const res = await fetch(`${WEBSITE_BASE_URL}/api/auth/add-user/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((res) => res.json());
+      console.log(res.user);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   useEffect(() => {
