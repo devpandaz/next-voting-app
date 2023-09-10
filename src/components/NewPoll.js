@@ -169,7 +169,7 @@ export default function NewPoll() {
           {choices.length == 0
             ? (
               <p className="text-sm text-center">
-                You haven't added any choices yet.
+                You haven&apos;t added any choices yet.
               </p>
             )
             : choices.map((choice, index) => (

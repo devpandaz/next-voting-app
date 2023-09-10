@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
 import { LoadingWebsite } from "@/app/loading";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 
 const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
 
@@ -50,10 +49,13 @@ export default function Feed() {
         <div className="mx-10 max-w-md flex flex-col space-between-1">
           {questions &&
             questions.map((question) => (
-              <Link href={`/feed/${question.id}`} className="flex">
+              <Link
+                href={`/feed/${question.id}`}
+                className="flex"
+                key={question.id}
+              >
                 <Button
                   variant="link"
-                  key={question.id}
                   className="hover:text-yellow-500 dark:hover:text-red-300 grow"
                 >
                   {question.questionText}
