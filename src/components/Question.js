@@ -64,12 +64,9 @@ export default function Question({ questionId }) {
   }, [loading]);
 
   useEffect(() => {
-    // check production
-    console.log("is this useEffect even working?");
     const channel = pusher_client.subscribe(`${questionId}`);
 
-    channel.bind("update stats", (data) => {
-      console.log(data);
+    channel.bind("update-stats", (data) => {
       fetchQuestion();
     });
 
