@@ -9,6 +9,7 @@ url = env("DATABASE_URL")
 
 model User {
 uid String @id
+questions Question[]
 votes Choice[]
 }
 
@@ -17,6 +18,8 @@ id Int @id @default(autoincrement())
 questionText String
 datePublished DateTime @db.Date @default(now())
 choices Choice[]
+user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
+uid String
 }
 
 model Choice {

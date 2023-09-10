@@ -23,8 +23,6 @@ import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
 import QuestionContextMenu from "./QuestionContextMenu";
 
-const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
-
 export default function Question({ questionId }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
@@ -47,7 +45,7 @@ export default function Question({ questionId }) {
 
   async function fetchQuestion() {
     const body = { uid: user.uid };
-    const res = await fetch(`${WEBSITE_BASE_URL}/api/questions/${questionId}`, {
+    const res = await fetch(`/api/questions/${questionId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -66,6 +64,8 @@ export default function Question({ questionId }) {
   }, [loading]);
 
   useEffect(() => {
+    // check production
+    console.log("is this useEffect even working?");
     const channel = pusher_client.subscribe(`${questionId}`);
 
     channel.bind("update stats", (data) => {
@@ -95,7 +95,7 @@ export default function Question({ questionId }) {
           currentChoiceId: currentChoiceId,
           newChoiceId: newChoiceId,
         };
-        const res = await fetch(`${WEBSITE_BASE_URL}/api/vote/`, {
+        await fetch("/api/vote/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -121,9 +121,9 @@ export default function Question({ questionId }) {
 
   return (
     <div className="w-fit mx-auto">
-      <Card className="mb-2 border-2 rounded-xl border-slate-300 mx-4">
+      <Card className="my-2 border-2 rounded-xl border-slate-300 mx-4 w-80">
         <CardHeader>
-          <CardTitle>{question.questionText}</CardTitle>
+          <CardTitle className="break-words">{question.questionText}</CardTitle>
         </CardHeader>
         <CardContent>
           {question.choices.length > 0
@@ -137,20 +137,18 @@ export default function Question({ questionId }) {
                   <div className="flex flex-col items-center">
                     <form
                       onSubmit={form.handleSubmit(onSubmit)}
-                      className="w-2/3 space-y-6"
+                      className="space-y-6"
                     >
                       <FormField
                         control={form.control}
                         name="choice"
                         render={({ field }) => (
-                          <FormItem className="space-y-3">
+                          <FormItem className="space-y-3 max-h-96 overflow-auto">
                             {/*<FormLabel>{question.questionText}</FormLabel>*/}
                             <FormControl>
                               <RadioGroup
                                 onValueChange={(e) => {
                                   setNewChoiceId(e); // e is the value of the selected choice
-
-                                  // or new implementation: sync directly after any change in choice
                                 }}
                                 defaultValue={currentChoiceId}
                                 className="flex flex-col space-y-1"
@@ -166,8 +164,8 @@ export default function Question({ questionId }) {
                                             value={choice.id}
                                           />
                                         </FormControl>
-                                        <div className="grow pl-2">
-                                          <FormLabel className="font-normal">
+                                        <div className="pl-2 w-52 mr-2">
+                                          <FormLabel className="font-normal break-words">
                                             {choice.choiceText}
                                             <Progress
                                               value={parseInt(
