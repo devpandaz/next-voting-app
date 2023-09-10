@@ -61,7 +61,7 @@ export async function POST(req) {
   }
 
   // trigger pusher vote event
-  pusher_server.trigger(`${questionId}`, "update stats", ""); // third argument is the data to be sent, seems like it is required even though i have none
+  await pusher_server.trigger(`${questionId}`, "update stats", ""); // third argument is the data to be sent, seems like it is required even though i have none
 
   return new NextResponse();
 }
