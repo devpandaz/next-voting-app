@@ -7,4 +7,6 @@ export const pusher_client = new Pusher(
   },
 );
 
-Pusher.logToConsole = true;
+if (process.env.NEXT_PUBLIC_DEV) {
+  Pusher.logToConsole = true;
+}
