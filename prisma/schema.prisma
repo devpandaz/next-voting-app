@@ -1,31 +1,33 @@
 generator client {
-provider = "prisma-client-js"
+	provider = "prisma-client-js"
 }
 
 datasource db {
-provider = "postgresql"
-url = env("DATABASE_URL")
+	provider = "postgresql"
+	url = env("DATABASE_URL")
 }
 
 model User {
-uid String @id
-questions Question[]
-votes Choice[]
+	uid String @id
+	displayName String
+	profileImageUrl String
+	questions Question[]
+	votes Choice[]
 }
 
 model Question {
-id Int @id @default(autoincrement())
-questionText String
-datePublished DateTime @db.Date @default(now())
-choices Choice[]
-user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
-uid String
+	id String @id
+	questionText String
+	datePublished DateTime @db.Date @default(now())
+	choices Choice[]
+	user User @relation(fields: [uid], references: [uid], onDelete: Cascade)
+	uid String
 }
 
 model Choice {
-id Int @id @default(autoincrement())
-choiceText String
-question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-questionId Int
-users User[]
+	id Int @id @default(autoincrement())
+	choiceText String
+	question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+	questionId String
+	users User[]
 }

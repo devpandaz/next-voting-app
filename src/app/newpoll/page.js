@@ -1,7 +1,7 @@
-import NewPoll from "@/components/NewPoll";
+import PollEditor from "@/components/PollEditor";
 
 export default function Page() {
-  return <NewPoll />;
+  return <PollEditor />;
 }
 
 export const metadata = {

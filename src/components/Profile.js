@@ -8,17 +8,19 @@ import {
   CardTitle,
 } from "./ui/card";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
-import { LoadingWebsite } from "@/app/loading";
+import Loading, { LoadingWebsite } from "@/app/loading";
 import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "./ui/use-toast";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { UserPolls, UserVotes } from "./UserStats";
 
-export default function Profile() {
+export default function Profile({ uidForPublicProfile = null }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
   const [profile, setProfile] = useState();
@@ -32,7 +34,7 @@ export default function Profile() {
   }, [loading, user]);
 
   async function fetchProfile() {
-    const body = { uid: user.uid };
+    const body = { uid: uidForPublicProfile ? uidForPublicProfile : user.uid };
     const res = await fetch("/api/profile/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,17 +54,18 @@ export default function Profile() {
     return <LoadingWebsite />;
   }
 
-  console.log(profile.votes);
-
   return (
-    <div className="w-fit mx-auto">
-      <div className="flex flex-col">
-        <Card className="mb-2 border-2 rounded-xl border-slate-300 mx-4">
+    <div className="w-fit mx-auto mt-2">
+      <div className="flex flex-col w-80">
+        <Card className="border-2 rounded-xl border-slate-300">
           <CardHeader>
-            <CardTitle className="flex">
-              <span className="self-center grow">{user.displayName}{" "}</span>
+            <CardTitle className="flex items-center">
+              <span className="grow">
+                {profile.displayName}
+                {" "}
+              </span>
               <Image
-                src={user.photoURL}
+                src={profile.profileImageUrl}
                 width={40}
                 height={40}
                 alt="profile picture"
@@ -71,24 +74,68 @@ export default function Profile() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{profile.votes.length} votes</p>
+            {!uidForPublicProfile // no uidForPublicProfile prop, user own private profile
+              ? <Tabs defaultValue="polls">
+                <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="polls">Polls</TabsTrigger>
+                  <TabsTrigger value="votes">Votes</TabsTrigger>
+                </TabsList>
+                <TabsContent value="polls">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Your polls</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Suspense fallback={Loading}>
+                        <UserPolls uid={user.uid} />
+                      </Suspense>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="votes">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Your votes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Suspense fallback={Loading}>
+                        <UserVotes uid={user.uid} />
+                      </Suspense>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+              // got uidForPublicProfile prop, public profile
+              : (
+                <Card className="border-2 border-yellow-500 dark:border-red-300">
+                  <CardHeader>
+                    <CardTitle>Polls</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Suspense fallback={Loading}>
+                      <UserPolls uid={uidForPublicProfile} />
+                    </Suspense>
+                  </CardContent>
+                </Card>
+              )}
           </CardContent>
           <CardFooter className="justify-center">
-            <Button
-              onClick={() => {
-                signOut(auth).then(() => {
-                  router.push("/auth/signin");
-                }).catch((err) => {
-                  toast({
-                    title: "Sign out failed",
-                    description: err.message,
-                    variant: "destructive",
+            {!uidForPublicProfile && // private profile
+              <Button
+                onClick={() => {
+                  signOut(auth).then(() => {
+                    router.push("/auth/signin");
+                  }).catch((err) => {
+                    toast({
+                      title: "Sign out failed",
+                      description: err.message,
+                      variant: "destructive",
+                    });
                   });
-                });
-              }}
-            >
-              <LogOut className="mr-2 h-4 w-4" /> Sign out
-            </Button>
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" /> Sign out
+              </Button>}
           </CardFooter>
         </Card>
       </div>

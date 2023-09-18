@@ -3,7 +3,6 @@ import prisma from "@/prisma/prisma";
 
 export async function POST(req, { params }) {
   let { questionId } = params;
-  questionId = parseInt(questionId);
   const { uid } = await req.json();
   const question = await prisma.question.findUniqueOrThrow({
     where: {
@@ -13,6 +12,12 @@ export async function POST(req, { params }) {
       choices: {
         orderBy: {
           id: "asc",
+        },
+      },
+      user: {
+        select: {
+          uid: true,
+          displayName: true,
         },
       },
     },

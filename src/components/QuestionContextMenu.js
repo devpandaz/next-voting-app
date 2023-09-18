@@ -7,7 +7,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 
 export default function QuestionContextMenu(
-  { children, uid, questionId, currentChoiceId },
+  { children, uid, questionId, currentChoiceId, submitting, setSubmitting },
 ) {
   const { toast } = useToast();
 
@@ -19,6 +19,7 @@ export default function QuestionContextMenu(
       <ContextMenuContent>
         <ContextMenuItem
           onSelect={async () => {
+            setSubmitting(true);
             try {
               const body = {
                 uid: uid,
@@ -30,6 +31,7 @@ export default function QuestionContextMenu(
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body),
               });
+              setSubmitting(false);
             } catch (err) {
               toast({
                 title: "Vote retract failed. ",
@@ -37,7 +39,7 @@ export default function QuestionContextMenu(
               });
             }
           }}
-          disabled={!currentChoiceId}
+          disabled={!currentChoiceId || submitting}
         >
           Retract vote
         </ContextMenuItem>

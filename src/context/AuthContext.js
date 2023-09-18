@@ -16,8 +16,13 @@ export const AuthContextProvider = ({
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  async function createUserRecordIfNotExist(uid) {
-    const body = { uid: uid };
+  async function createUserRecordIfNotExist(uid, displayName, profileImageUrl) {
+    console.log(profileImageUrl);
+    const body = {
+      uid: uid,
+      displayName: displayName,
+      profileImageUrl: profileImageUrl,
+    };
     try {
       const res = await fetch(`${WEBSITE_BASE_URL}/api/auth/add-user/`, {
         method: "POST",
@@ -34,7 +39,7 @@ export const AuthContextProvider = ({
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        createUserRecordIfNotExist(user.uid);
+        createUserRecordIfNotExist(user.uid, user.displayName, user.photoURL);
       } else {
         setUser(null);
       }

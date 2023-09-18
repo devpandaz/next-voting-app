@@ -7,7 +7,6 @@ export async function POST(req) {
 
   newChoiceId = parseInt(newChoiceId);
   currentChoiceId = parseInt(currentChoiceId);
-  questionId = parseInt(questionId);
 
   // const question = await prisma.choice.update({
   //   where: {

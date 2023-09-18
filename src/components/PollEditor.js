@@ -10,8 +10,9 @@ import { Label } from "./ui/label";
 import { Loader2, Plus, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "./ui/toast";
+import Link from "next/link";
 
-export default function NewPoll() {
+export default function PollEditor({ toBeEditedQuestionId = null }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
 
@@ -24,7 +25,27 @@ export default function NewPoll() {
   const lastChoice = useRef();
   const choiceInputBox = useRef();
 
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
+  const currentToastId = useRef();
+
+  // check if got toBeEditedQuestionId prop, means editing existing poll
+  useEffect(() => {
+    if (toBeEditedQuestionId) {
+      async function fetchExistingQuestion(id) {
+        const body = { uid: user.uid };
+        const res = await fetch(`/api/questions/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }).then((res) => res.json());
+        let existingQuestion = res.question;
+        setPollTitle(existingQuestion.questionText);
+        setChoices(existingQuestion.choices.map((choice) => choice.choiceText));
+      }
+      fetchExistingQuestion(toBeEditedQuestionId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toBeEditedQuestionId]);
 
   useEffect(() => {
     if (lastChoice.current) {
@@ -39,6 +60,14 @@ export default function NewPoll() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
+
+  // dismiss current toast when component unmounts so that it does not stay, for example after routing to other pages
+  useEffect(() => {
+    return () => {
+      dismiss(currentToastId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentToastId]);
 
   if (loading || !user) {
     return <LoadingWebsite />;
@@ -58,7 +87,7 @@ export default function NewPoll() {
     }));
   }
 
-  async function addPoll() {
+  async function createOrUpdatePoll() {
     if (!pollTitle) {
       toast({
         variant: "destructive",
@@ -75,43 +104,47 @@ export default function NewPoll() {
           uid: user.uid,
           questionText: pollTitle,
           choices: choices,
+          toBeEditedQuestionId: toBeEditedQuestionId,
         };
         setSubmitting(true);
-        const res = await fetch("/api/newpoll", {
+        const res = await fetch("/api/create-or-update-poll/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         }).then((res) => res.json());
-        setSubmitting(false);
-        toast({
-          title: "Created poll successfully",
-          description: (
-            <p>
-              Poll created successfully at{" "}
-              <code>/feed/{res.createdQuestionId}</code>
-            </p>
-          ),
-          action: (
-            <ToastAction altText="Visit poll">
-              <button
-                onClick={() => {
-                  router.push(`/feed/${res.createdQuestionId}`);
-                }}
-              >
-                Visit poll
-              </button>
-            </ToastAction>
-          ),
-        });
+        if (toBeEditedQuestionId) {
+          toast({
+            title: "Poll edited successfully. ",
+            duration: 2000,
+          });
+          router.push(`feed/${toBeEditedQuestionId}`);
+        } else {
+          setSubmitting(false);
+          const { id } = toast({
+            title: "Poll created successfully. ",
+            action: (
+              <ToastAction altText="Visit poll">
+                <button
+                  onClick={() => {
+                    router.push(`/feed/${res.createdOrEditedQuestionId}`);
+                  }}
+                >
+                  Visit poll
+                </button>
+              </ToastAction>
+            ),
+          });
+          currentToastId.current = id;
 
-        // clear form
-        setPollTitle("");
-        setChoiceText("");
-        setChoices([]);
+          // clear form
+          setPollTitle("");
+          setChoiceText("");
+          setChoices([]);
+        }
       } catch (err) {
         console.log(err);
         toast({
-          title: "Create poll failed",
+          title: `${toBeEditedQuestionId ? "Edit" : "Create"} poll failed`,
           variant: "destructive",
         });
       }
@@ -145,7 +178,7 @@ export default function NewPoll() {
                 type="text"
                 id="choice"
                 value={choiceText}
-                disabled={choices.length == 10}
+                disabled={choices.length >= 10}
                 className="mr-2 w-[12.8rem]"
                 placeholder="e.g. JIF"
                 onChange={(e) => {
@@ -156,6 +189,7 @@ export default function NewPoll() {
               </Input>
               <div className="flex grow justify-end">
                 <Button
+                  type="submit"
                   disabled={choices.length == 10}
                   size="icon"
                 >
@@ -195,15 +229,36 @@ export default function NewPoll() {
             ))}
         </div>
 
-        <Button
-          disabled={submitting}
-          type="submit"
-          onClick={addPoll}
-          className="self-center mt-2"
-        >
-          {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create poll
-        </Button>
+        {toBeEditedQuestionId
+          ? (
+            <>
+              <Button
+                disabled={submitting}
+                onClick={createOrUpdatePoll}
+                className="self-center mt-2"
+              >
+                {submitting &&
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save poll
+              </Button>
+              <Link
+                className="hover:underline text-sm self-center mt-1 hover:text-yellow-500 dark:hover:text-red-300"
+                href={`/feed/${toBeEditedQuestionId}`}
+              >
+                Cancel
+              </Link>
+            </>
+          )
+          : (
+            <Button
+              disabled={submitting}
+              onClick={createOrUpdatePoll}
+              className="self-center mt-2"
+            >
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create poll
+            </Button>
+          )}
       </div>
     </div>
   );

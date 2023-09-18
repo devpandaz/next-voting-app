@@ -11,7 +11,6 @@ const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
 export default function Feed() {
   const router = useRouter();
   const { user, loading } = useAuthContext();
-
   const [questions, setQuestions] = useState();
 
   useEffect(() => {
@@ -38,6 +37,12 @@ export default function Feed() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
+  // useEffect(() => {
+  //   if (searchParams.has("delete")) {
+  //     successAlertBox.current.classList.remove("hidden");
+  //   }
+  // });
+
   if (loading || !user) {
     return <LoadingWebsite />;
   }
@@ -45,6 +50,7 @@ export default function Feed() {
   return (
     <div className="w-fit mx-auto">
       <h1 className="font-bold text-center text-2xl mb-2">Public Feed</h1>
+
       <Suspense>
         <div className="mx-10 max-w-md flex flex-col space-between-1">
           {questions &&

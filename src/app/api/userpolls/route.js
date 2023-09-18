@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import prisma from "@/prisma/prisma";
 
 export async function POST(req) {
-  const { uid } = await req.json();
-  const profile = await prisma.user.findUniqueOrThrow({
+  let { uid } = await req.json();
+  const questions = await prisma.question.findMany({
     where: {
       uid: uid,
     },
   });
 
-  return NextResponse.json({ profile });
+  return NextResponse.json({ questions });
 }
