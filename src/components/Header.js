@@ -14,7 +14,7 @@ import {
 export default function Header() {
   const { user } = useAuthContext();
 
-  console.log(user);
+  // console.log(user);
 
   return (
     <div className="flex justify-center py-3 sticky top-0 bg-slate-200/25 dark:bg-gray-700/25 backdrop-blur-sm">
@@ -23,7 +23,7 @@ export default function Header() {
           className="text-xl md:text-2xl font-bold"
           href={user ? "/feed" : "/"}
         >
-          Django Voting App
+          Next Voting App
         </Link>
       </div>
       <div className="space-x-1 flex items-center">

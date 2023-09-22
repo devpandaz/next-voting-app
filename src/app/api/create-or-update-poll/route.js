@@ -6,47 +6,51 @@ export async function POST(req) {
   let { uid, questionText, choices, toBeEditedQuestionId } = await req.json();
   choices = choices.map((choice) => ({ choiceText: choice }));
 
-  // delete all old choices of the question if editing
-  if (toBeEditedQuestionId) {
-    await prisma.choice.deleteMany({
-      where: {
-        questionId: toBeEditedQuestionId,
-      },
-    });
-  }
+  let createdOrEditedQuestionId;
 
-  const createdOrEditedQuestion = await prisma.question.upsert({
-    where: {
-      id: toBeEditedQuestionId ? toBeEditedQuestionId : uuidv4(),
-    },
-    create: {
-      id: uuidv4(),
-      questionText: questionText,
-      choices: {
-        create: choices,
+  await prisma.$transaction(async (tx) => {
+    // delete all old choices of the question if editing
+    if (toBeEditedQuestionId) {
+      await tx.choice.deleteMany({
+        where: {
+          questionId: toBeEditedQuestionId,
+        },
+      });
+    }
+
+    const createdOrEditedQuestion = await tx.question.upsert({
+      where: {
+        id: toBeEditedQuestionId ? toBeEditedQuestionId : uuidv4(),
       },
-      uid: uid,
-    },
-    update: {
-      questionText: questionText,
-      choices: {
-        create: choices,
+      create: {
+        id: uuidv4(),
+        questionText: questionText,
+        choices: {
+          create: choices,
+        },
+        uid: uid,
       },
-    },
-    select: {
-      id: true,
-    },
-  });
-  const createdOrEditedQuestionId = createdOrEditedQuestion.id;
-  await prisma.user.update({
-    where: { uid: uid },
-    data: {
-      questions: {
-        connect: {
-          id: createdOrEditedQuestionId,
+      update: {
+        questionText: questionText,
+        choices: {
+          create: choices,
         },
       },
-    },
+      select: {
+        id: true,
+      },
+    });
+    createdOrEditedQuestionId = createdOrEditedQuestion.id;
+    await tx.user.update({
+      where: { uid: uid },
+      data: {
+        questions: {
+          connect: {
+            id: createdOrEditedQuestionId,
+          },
+        },
+      },
+    });
   });
 
   return NextResponse.json({ createdOrEditedQuestionId });

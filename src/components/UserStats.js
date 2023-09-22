@@ -205,7 +205,7 @@ export async function UserVotes({ uid }) {
               href={`/feed/${vote.question.id}`}
               className="text-sm hover:underline hover:text-yellow-500 dark:hover:text-red-300"
             >
-              &quot;l{vote.choiceText}&quot; in &quot;{vote.question
+              &quot;{vote.choiceText}&quot; in &quot;{vote.question
                 .questionText}&quot;
             </Link>
           </li>

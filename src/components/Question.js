@@ -97,7 +97,6 @@ export default function Question({ questionId }) {
     const channel = pusher_client.subscribe(`${questionId}`);
 
     channel.bind("update-stats", (data) => {
-      console.log("data: " + data);
       fetchQuestion();
     });
 
@@ -294,7 +293,7 @@ export default function Question({ questionId }) {
                             <Button
                               type="submit"
                               disabled={!(newChoiceId &&
-                                newChoiceId !== currentChoiceId)}
+                                newChoiceId !== currentChoiceId) || submitting}
                             >
                               {submitting &&
                                 (
@@ -305,7 +304,10 @@ export default function Question({ questionId }) {
                             </Button>
                           )
                           : (
-                            <Button type="submit" disabled={!newChoiceId}>
+                            <Button
+                              type="submit"
+                              disabled={!newChoiceId || submitting}
+                            >
                               {submitting &&
                                 (
                                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

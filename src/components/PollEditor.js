@@ -28,25 +28,6 @@ export default function PollEditor({ toBeEditedQuestionId = null }) {
   const { toast, dismiss } = useToast();
   const currentToastId = useRef();
 
-  // check if got toBeEditedQuestionId prop, means editing existing poll
-  useEffect(() => {
-    if (toBeEditedQuestionId) {
-      async function fetchExistingQuestion(id) {
-        const body = { uid: user.uid };
-        const res = await fetch(`/api/questions/${id}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
-        let existingQuestion = res.question;
-        setPollTitle(existingQuestion.questionText);
-        setChoices(existingQuestion.choices.map((choice) => choice.choiceText));
-      }
-      fetchExistingQuestion(toBeEditedQuestionId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toBeEditedQuestionId]);
-
   useEffect(() => {
     if (lastChoice.current) {
       lastChoice.current.scrollIntoView();
@@ -68,6 +49,25 @@ export default function PollEditor({ toBeEditedQuestionId = null }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentToastId]);
+
+  // check if got toBeEditedQuestionId prop, means editing existing poll
+  useEffect(() => {
+    if (toBeEditedQuestionId) {
+      async function fetchExistingQuestion(id) {
+        const body = { uid: user.uid };
+        const res = await fetch(`/api/questions/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }).then((res) => res.json());
+        let existingQuestion = res.question;
+        setPollTitle(existingQuestion.questionText);
+        setChoices(existingQuestion.choices.map((choice) => choice.choiceText));
+      }
+      fetchExistingQuestion(toBeEditedQuestionId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toBeEditedQuestionId]);
 
   if (loading || !user) {
     return <LoadingWebsite />;

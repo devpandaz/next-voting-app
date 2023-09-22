@@ -6,8 +6,6 @@ import { useAuthContext } from "@/context/AuthContext";
 import { LoadingWebsite } from "@/app/loading";
 import { Button } from "./ui/button";
 
-const WEBSITE_BASE_URL = process.env.NEXT_PUBLIC_WEBSITE_BASE_URL;
-
 export default function Feed() {
   const router = useRouter();
   const { user, loading } = useAuthContext();
@@ -22,7 +20,7 @@ export default function Feed() {
 
   async function fetchQuestions() {
     try {
-      const res = await fetch(`${WEBSITE_BASE_URL}/api/questions/`);
+      const res = await fetch("/api/questions/", { method: "POST" });
       const data = await res.json();
       setQuestions(data.questions);
     } catch (err) {

@@ -8,28 +8,6 @@ export async function POST(req) {
   newChoiceId = parseInt(newChoiceId);
   currentChoiceId = parseInt(currentChoiceId);
 
-  // const question = await prisma.choice.update({
-  //   where: {
-  //     id: selected,
-  //   },
-  //   data: {
-  //     votes: {
-  //       increment: 1,
-  //     },
-  //   },
-  //   select: {
-  //     question: {
-  //       include: {
-  //         choices: {
-  //           orderBy: {
-  //             id: "asc",
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // });
-
   if (currentChoiceId) {
     await prisma.user.update({
       where: {
