@@ -41,7 +41,7 @@ export default function Feed() {
   //   }
   // });
 
-  if (loading || !user) {
+  if (loading) {
     return <LoadingWebsite />;
   }
 

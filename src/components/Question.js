@@ -56,10 +56,12 @@ export default function Question({ questionId }) {
   const { toast, dismiss } = useToast();
   const currentToastId = useRef();
 
-  // dismiss current toast when component unmounts so that it does not stay, for example after routing to other pages
+  // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   useEffect(() => {
     return () => {
-      dismiss(currentToastId.current);
+      if (currentToastId.current) {
+        dismiss();
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentToastId]);
@@ -106,7 +108,7 @@ export default function Question({ questionId }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading || !user || !question) {
+  if (loading || !question) {
     return <LoadingWebsite />;
   }
 
@@ -188,14 +190,16 @@ export default function Question({ questionId }) {
                                 body: JSON.stringify(body),
                               });
                               toast({
-                                title: "Poll deleted successfully. ",
+                                title: "Poll delete successfull. ",
                                 duration: 2500,
                               });
+                              // this toast should stay even after routing to other pages
+                              currentToastId.current = null;
                               router.push("/feed");
                             } catch (err) {
                               const { id } = toast({
                                 variant: "destructive",
-                                title: "Poll delete failed",
+                                title: "Poll delete failed. ",
                               });
                               currentToastId.current = id;
                             }

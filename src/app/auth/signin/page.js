@@ -23,7 +23,7 @@ export default function SignInPage() {
     }
   }
   return (
-    <div className="w-fit mx-auto border-2 border-slate-950 dark:border-slate-50 rounded-lg p-2 flex flex-col justify-center">
+    <div className="w-fit mx-auto border-2 border-slate-950 dark:border-slate-50 rounded-lg p-2 flex flex-col">
       <Button
         className="m-3"
         onClick={() => {
@@ -32,6 +32,7 @@ export default function SignInPage() {
       >
         <LogIn className="mr-2 h-4 w-4" /> Sign In with Google
       </Button>
+      <p className="text-sm">More sign in methods are coming soon.</p>
       {
         /*<Button
         className="m-3"

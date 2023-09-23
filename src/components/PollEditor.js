@@ -42,10 +42,12 @@ export default function PollEditor({ toBeEditedQuestionId = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
-  // dismiss current toast when component unmounts so that it does not stay, for example after routing to other pages
+  // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   useEffect(() => {
     return () => {
-      dismiss(currentToastId.current);
+      if (currentToastId.current) {
+        dismiss(currentToastId.current);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentToastId]);
@@ -69,7 +71,7 @@ export default function PollEditor({ toBeEditedQuestionId = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toBeEditedQuestionId]);
 
-  if (loading || !user) {
+  if (loading) {
     return <LoadingWebsite />;
   }
 

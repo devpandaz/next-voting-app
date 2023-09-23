@@ -50,7 +50,7 @@ export default function Profile({ uidForPublicProfile = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  if (loading || !user || !profile) {
+  if (loading || !profile) {
     return <LoadingWebsite />;
   }
 
