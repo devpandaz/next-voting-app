@@ -62,6 +62,7 @@ function useScript(params) {
         script.removeEventListener("error", setAttributeStatus);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
   return status;
 }

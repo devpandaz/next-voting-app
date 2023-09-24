@@ -180,7 +180,7 @@ export function UserPolls({ uid }) {
   }
 }
 
-export async function UserVotes({ uid }) {
+export function UserVotes({ uid }) {
   const [votes, setVotes] = useState();
 
   async function fetchVotes() {
