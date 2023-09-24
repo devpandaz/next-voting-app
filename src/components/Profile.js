@@ -98,9 +98,7 @@ export default function Profile({ uidForPublicProfile = null }) {
                       <CardTitle>Your votes</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <Suspense fallback={Loading}>
-                        <UserVotes uid={user.uid} />
-                      </Suspense>
+                      <UserVotes uid={user.uid} />
                     </CardContent>
                   </Card>
                 </TabsContent>

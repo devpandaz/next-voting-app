@@ -50,7 +50,7 @@ export function UserPolls({ uid }) {
 
   if (!questions) {
     // data not loaded yet
-    return <p>Loading...</p>;
+    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
   }
 
   const alertBoxes = (
@@ -181,21 +181,35 @@ export function UserPolls({ uid }) {
 }
 
 export async function UserVotes({ uid }) {
-  let votes;
-  try {
-    const body = {
-      uid: uid,
-    };
-    const res = await fetch("/api/uservotes/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    }).then((res) => res.json());
-    votes = res.votes;
-  } catch (err) {
-    console.log(err);
+  const [votes, setVotes] = useState();
+
+  async function fetchVotes() {
+    try {
+      const body = {
+        uid: uid,
+      };
+      const res = await fetch("/api/uservotes/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }).then((res) => res.json());
+      setVotes(res.votes);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
+  useEffect(() => {
+    fetchVotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!votes) {
+    // data not loaded yet
+    return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
+  }
+
+  // data loaded already
   if (votes.length !== 0) {
     return (
       <ul className="list-disc">

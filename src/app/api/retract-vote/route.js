@@ -15,7 +15,7 @@ export async function POST(req) {
     },
   });
   // trigger pusher vote event
-  pusher_server.trigger(`${questionId}`, "update-stats", "");
+  await pusher_server.trigger(`${questionId}`, "update-stats", "");
 
   return new NextResponse();
 }

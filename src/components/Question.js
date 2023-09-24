@@ -40,6 +40,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
+import Comments from "./Comments";
 
 export default function Question({ questionId }) {
   const router = useRouter();
@@ -55,6 +56,8 @@ export default function Question({ questionId }) {
 
   const { toast, dismiss } = useToast();
   const currentToastId = useRef();
+
+  const [showComments, setShowComments] = useState(false);
 
   // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   useEffect(() => {
@@ -139,7 +142,7 @@ export default function Question({ questionId }) {
   }
 
   return (
-    <div className="w-fit mx-auto">
+    <div className="w-fit mx-auto flex flex-col">
       <Card className="my-2 border-2 rounded-xl border-slate-300 w-80">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -330,6 +333,8 @@ export default function Question({ questionId }) {
         </CardContent>
       </Card>
 
+      {
+        /*
       <div className="flex justify-center mt-4">
         <Button asChild variant="outline">
           <Link href="/feed">
@@ -337,6 +342,21 @@ export default function Question({ questionId }) {
           </Link>
         </Button>
       </div>
+      */
+      }
+      {!showComments &&
+        (
+          <Button
+            className="self-center mt-2"
+            onClick={() => {
+              setShowComments(true);
+            }}
+          >
+            Open comments
+          </Button>
+        )}
+      {showComments &&
+        <Comments />}
     </div>
   );
 }
