@@ -2,7 +2,9 @@ import PollEditor from "@/components/PollEditor";
 
 export default function Page({ searchParams }) {
   const toBeEditedQuestionId = searchParams.id;
-  return <PollEditor toBeEditedQuestionId={toBeEditedQuestionId} />;
+  const back = searchParams.back;
+  console.log(toBeEditedQuestionId, back);
+  return <PollEditor toBeEditedQuestionId={toBeEditedQuestionId} back={back} />;
 }
 
 export const metadata = {

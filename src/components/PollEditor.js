@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "./ui/toast";
 import Link from "next/link";
 
-export default function PollEditor({ toBeEditedQuestionId = null }) {
+export default function PollEditor({ toBeEditedQuestionId = null, back }) {
   const router = useRouter();
   const { user, loading } = useAuthContext();
 
@@ -245,7 +245,9 @@ export default function PollEditor({ toBeEditedQuestionId = null }) {
               </Button>
               <Link
                 className="hover:underline text-sm self-center mt-1 hover:text-yellow-500 dark:hover:text-red-300"
-                href={`/feed/${toBeEditedQuestionId}`}
+                href={back === "profile"
+                  ? "/profile"
+                  : `/feed/${toBeEditedQuestionId}`}
               >
                 Cancel
               </Link>

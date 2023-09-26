@@ -10,7 +10,7 @@ export default function Feed() {
   const router = useRouter();
   const { user, loading } = useAuthContext();
 
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState();
   const lastQuestionId = useRef(null);
   const [hasMore, setHasMore] = useState();
 
@@ -31,7 +31,11 @@ export default function Feed() {
       }).then((res) => res.json());
       lastQuestionId.current = res.lastQuestionId;
       setHasMore(res.hasMore);
-      setQuestions([...questions, ...res.questions]);
+      if (questions) { // already fetched questions before
+        setQuestions([...questions, ...res.questions]);
+      } else { // first time fetch, since state initial value is null "useState()"
+        setQuestions(res.questions);
+      }
     } catch (err) {
       console.log(err);
     }
@@ -44,7 +48,7 @@ export default function Feed() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading]);
 
-  if (loading) {
+  if (loading || !questions) {
     return <LoadingWebsite />;
   }
 

@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Home, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
 import QuestionContextMenu from "./QuestionContextMenu";
@@ -155,7 +155,7 @@ export default function Question({ questionId }) {
                     variant="ghost"
                     size="icon"
                     onClick={() => {
-                      router.push(`/editpoll?id=${question.id}`);
+                      router.push(`/editpoll?id=${question.id}&back=question`);
                     }}
                   >
                     <Pencil className="h-4 w-4" />

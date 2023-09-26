@@ -93,7 +93,7 @@ export function UserPolls({ uid }) {
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        router.push(`/editpoll?id=${question.id}`);
+                        router.push(`/editpoll?id=${question.id}&back=profile`);
                       }}
                     >
                       <Pencil className="h-4 w-4" />
