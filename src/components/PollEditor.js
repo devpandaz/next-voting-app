@@ -155,7 +155,9 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
 
   return (
     <div className="w-fit mx-auto">
-      <h1 className="text-xl text-center my-3">Create new poll</h1>
+      <h1 className="text-xl text-center my-3">
+        {toBeEditedQuestionId ? "Edit" : "Create new"} poll
+      </h1>
       <div className="flex flex-col border-2 border-slate-950 dark:border-slate-50 rounded-lg px-8 py-4 w-80">
         <Label className="text-lg mb-1 self-center">
           Poll title

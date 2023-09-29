@@ -16,6 +16,10 @@ export async function POST(req) {
       },
     });
 
+    if (questions.length == 0) {
+      return NextResponse.json({ questions });
+    }
+
     // consequent fetch, got lastQuestionId already
   } else {
     questions = await prisma.question.findMany({
