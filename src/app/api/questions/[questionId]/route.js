@@ -9,11 +9,7 @@ export async function POST(req, { params }) {
       id: questionId,
     },
     include: {
-      choices: {
-        orderBy: {
-          id: "asc",
-        },
-      },
+      choices: true,
       user: {
         select: {
           uid: true,
@@ -40,6 +36,9 @@ export async function POST(req, { params }) {
 
   // to get users count for every choices of this specific question
   const choicesWithUsersCount = await prisma.choice.findMany({
+    where: {
+      questionId: questionId,
+    },
     select: {
       _count: {
         select: {
@@ -47,12 +46,6 @@ export async function POST(req, { params }) {
         },
       },
       id: true,
-    },
-    where: {
-      questionId: questionId,
-    },
-    orderBy: {
-      id: "asc",
     },
   });
 

@@ -109,7 +109,7 @@ export default function Question({ questionId }) {
       pusher_client.unsubscribe(`${questionId}`);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   if (loading || !question) {
     return <LoadingWebsite />;
@@ -142,7 +142,7 @@ export default function Question({ questionId }) {
   }
 
   return (
-    <div className="w-fit mx-auto flex flex-col">
+    <div className="w-fit mx-auto flex flex-col mb-2">
       <Card className="my-2 border-2 rounded-xl border-slate-300 w-80">
         <CardHeader>
           <CardTitle className="flex items-center">
@@ -165,8 +165,6 @@ export default function Question({ questionId }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => {
-                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -183,14 +181,25 @@ export default function Question({ questionId }) {
                         <AlertDialogAction
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                           onClick={async () => {
-                            const body = {
-                              questionId: question.id,
-                            };
                             try {
+                              if (question.imageURL) {
+                                // delete image file from vercel blob store
+                                await fetch("/api/image/delete", {
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    url: question.imageURL,
+                                  }),
+                                });
+                              }
                               await fetch("/api/delete-poll/", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(body),
+                                body: JSON.stringify({
+                                  questionId: question.id,
+                                }),
                               });
                               toast({
                                 title: "Poll delete successfull. ",
@@ -228,7 +237,16 @@ export default function Question({ questionId }) {
                 ? "you"
                 : question.user.displayName}
             </Link>{" "}
-            on {new Date(question.datePublished).toLocaleDateString()}
+            on {new Date(question.timePublished).toLocaleDateString()}
+            {question.imageURL &&
+              (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={question.imageURL}
+                  alt="poll image"
+                  className="mt-2"
+                />
+              )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -261,7 +279,7 @@ export default function Question({ questionId }) {
                                 defaultValue={currentChoiceId}
                                 className="flex flex-col space-y-1"
                               >
-                                {question.choices.map((choice, index) => (
+                                {question.choices.map((choice) => (
                                   <FormItem
                                     key={choice.id}
                                   >
@@ -277,7 +295,10 @@ export default function Question({ questionId }) {
                                             {choice.choiceText}
                                             <Progress
                                               value={parseInt(
-                                                choicesWithUsersCount[index]
+                                                choicesWithUsersCount.filter(
+                                                  (stats) =>
+                                                    stats.id === choice.id,
+                                                )[0]
                                                   ._count
                                                   .users,
                                               ) / totalVotes * 100}

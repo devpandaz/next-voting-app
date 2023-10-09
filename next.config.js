@@ -32,6 +32,21 @@ const nextConfig = {
       },
     ],
   },
+  reactStrictMode: false, // so that it wont run useEffect twice which would affect useScript (for utterances) and react-beautiful-dnd when in development
 };
 
-module.exports = nextConfig;
+module.exports = {
+  ...nextConfig,
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.externals.push({
+        bufferutil: "bufferutil",
+        "utf-8-validate": "utf-8-validate",
+        "supports-color": "supports-color",
+      });
+    }
+
+    return config;
+  },
+};
+// https://github.com/netlify/netlify-lambda/issues/179#issuecomment-1613183143

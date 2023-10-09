@@ -3,7 +3,7 @@ import prisma from "@/prisma/prisma";
 
 export async function POST(req) {
   let { lastQuestionId } = await req.json();
-  const takeAmount = 15;
+  const takeAmount = 30;
   let questions;
   let hasMore;
 
@@ -12,7 +12,7 @@ export async function POST(req) {
     questions = await prisma.question.findMany({
       take: takeAmount,
       orderBy: {
-        datePublished: "desc",
+        timePublished: "desc",
       },
     });
 
@@ -29,14 +29,14 @@ export async function POST(req) {
         id: lastQuestionId,
       },
       orderBy: {
-        datePublished: "desc",
+        timePublished: "desc",
       },
     });
   }
   lastQuestionId = questions.at(-1).id;
   const lastRecordInTable = await prisma.question.findFirst({
     orderBy: {
-      datePublished: "asc",
+      timePublished: "asc",
     },
     select: {
       id: true,

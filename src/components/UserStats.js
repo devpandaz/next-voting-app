@@ -46,7 +46,7 @@ export function UserPolls({ uid }) {
   useEffect(() => {
     fetchPolls();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   if (!questions) {
     // data not loaded yet
@@ -125,16 +125,28 @@ export function UserPolls({ uid }) {
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             onClick={async () => {
                               setDeletingPoll(question.id);
-                              const body = {
-                                questionId: question.id,
-                              };
                               try {
+                                if (question.imageURL) {
+                                  // delete image file from vercel blob store
+                                  await fetch("/api/image/delete", {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      url: question.imageURL,
+                                    }),
+                                  });
+                                }
+
                                 await fetch("/api/delete-poll/", {
                                   method: "POST",
                                   headers: {
                                     "Content-Type": "application/json",
                                   },
-                                  body: JSON.stringify(body),
+                                  body: JSON.stringify({
+                                    questionId: question.id,
+                                  }),
                                 });
 
                                 deletedPollTitle.current =
@@ -202,7 +214,7 @@ export function UserVotes({ uid }) {
   useEffect(() => {
     fetchVotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   if (!votes) {
     // data not loaded yet

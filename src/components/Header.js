@@ -10,6 +10,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import {
+  NotificationBell,
+  PopoverNotificationCenter,
+} from "@novu/notification-center";
 
 export default function Header() {
   const { user } = useAuthContext();
@@ -70,6 +74,16 @@ export default function Header() {
                 <User className="h-[1.2rem] w-[1.2rem]" />
               </Link>
             </Button>
+          )}
+        {user &&
+          (
+            <PopoverNotificationCenter colorScheme={"light"}>
+              {({ unseenCount }) => (
+                <NotificationBell
+                  unseenCount={unseenCount}
+                />
+              )}
+            </PopoverNotificationCenter>
           )}
       </div>
     </div>

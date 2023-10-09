@@ -1,57 +1,116 @@
 import { NextResponse } from "next/server";
 import prisma from "@/prisma/prisma";
-import { v4 as uuidv4 } from "uuid";
 
 export async function POST(req) {
-  let { uid, questionText, choices, toBeEditedQuestionId } = await req.json();
-  choices = choices.map((choice) => ({ choiceText: choice }));
+  let {
+    uid,
+    questionId,
+    questionText,
+    pollImageURL,
+    choices,
+    removedExistingChoicesIDs,
+    editing,
+  } = await req.json();
+  // note: from PollEditor.js: questionId = toBeEditedQuestionId ? toBeEditedQuestionId : uuidv4()
 
-  let createdOrEditedQuestionId;
+  // note: choices[] consists of choice object:
+  // {id (present for existing ones; absent for newly created ones): __,
+  // choiceText: __}
+  let newChoices;
+  if (!editing) {
+    newChoices = choices.map((choice) => (
+      {
+        choiceText: choice.choiceText,
+      }
+    ));
+  }
 
   await prisma.$transaction(async (tx) => {
-    // delete all old choices of the question if editing
-    if (toBeEditedQuestionId) {
-      await tx.choice.deleteMany({
-        where: {
-          questionId: toBeEditedQuestionId,
-        },
-      });
-    }
-
-    const createdOrEditedQuestion = await tx.question.upsert({
+    await tx.question.upsert({
       where: {
-        id: toBeEditedQuestionId ? toBeEditedQuestionId : uuidv4(),
+        id: questionId,
       },
       create: {
-        id: uuidv4(),
+        id: questionId,
         questionText: questionText,
+        imageURL: pollImageURL,
         choices: {
-          create: choices,
+          create: newChoices,
         },
         uid: uid,
       },
       update: {
         questionText: questionText,
-        choices: {
-          create: choices,
-        },
-      },
-      select: {
-        id: true,
+        imageURL: pollImageURL,
+        // update questionText and pollImageURL is enough, choices will be updated below
       },
     });
-    createdOrEditedQuestionId = createdOrEditedQuestion.id;
-    await tx.user.update({
-      where: { uid: uid },
-      data: {
-        questions: {
-          connect: {
-            id: createdOrEditedQuestionId,
+
+    if (editing) { // rmb, editing can edit existing choice text or add new choice, or reorder the choices
+      // first, to prepare for choices reordering, we disconnect all choices from the question first
+      await prisma.question.update({
+        where: {
+          id: questionId,
+        },
+        data: {
+          choices: {
+            set: [],
           },
         },
-      },
-    });
+      });
+
+      for (const choice of choices) {
+        if (choice.id) { // got choice id, means existing ones
+          await prisma.choice.update({
+            where: {
+              id: choice.id,
+            },
+            data: {
+              choiceText: choice.choiceText,
+              question: {
+                connect: {
+                  id: questionId,
+                },
+              },
+            },
+          });
+        } else { // no choice id, means newly added one
+          await prisma.choice.create({
+            data: {
+              choiceText: choice.choiceText,
+              question: {
+                connect: {
+                  id: questionId,
+                },
+              },
+            },
+          });
+        }
+      }
+
+      // delete all removed existing choices if any
+      await prisma.choice.deleteMany({
+        where: {
+          id: {
+            in: removedExistingChoicesIDs,
+          },
+        },
+      });
+    }
+
+    if (!editing) { // connect newly created question to users record
+      await tx.user.update({
+        where: { uid: uid },
+        data: {
+          questions: {
+            connect: {
+              id: questionId,
+            },
+          },
+        },
+      });
+    }
   });
 
-  return NextResponse.json({ createdOrEditedQuestionId });
+  return new NextResponse();
 }

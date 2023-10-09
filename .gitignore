@@ -34,4 +34,5 @@ notes.txt
 *.tsbuildinfo
 next-env.d.ts
 
-firebaseServiceAccountKey.json
+/src/app/api/list-all-blobs
+/src/app/api/delete-all-blobs
