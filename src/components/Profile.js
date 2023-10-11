@@ -9,7 +9,6 @@ import {
 } from "./ui/card";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { useAuthContext } from "@/context/AuthContext";
 import Loading, { LoadingWebsite } from "@/app/loading";
 import { Button } from "@/components/ui/button";
 import { signOut } from "firebase/auth";
@@ -19,19 +18,14 @@ import { LogOut } from "lucide-react";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { UserPolls, UserVotes } from "./UserStats";
+import useAuthorize from "./useAuthorize";
 
 export default function Profile({ uidForPublicProfile = null }) {
   const router = useRouter();
-  const { user, loading } = useAuthContext();
   const [profile, setProfile] = useState();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/signin");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  const { user, loading } = useAuthorize();
 
   async function fetchProfile() {
     const body = { uid: uidForPublicProfile ? uidForPublicProfile : user.uid };
@@ -44,13 +38,13 @@ export default function Profile({ uidForPublicProfile = null }) {
   }
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && user) {
       fetchProfile();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, user]);
 
-  if (loading || !profile) {
+  if (loading || !user || !profile) {
     return <LoadingWebsite />;
   }
 

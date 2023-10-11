@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useAuthContext } from "@/context/AuthContext";
 import { LoadingWebsite } from "@/app/loading";
 import { useToast } from "@/components/ui/use-toast";
 import { useForm } from "react-hook-form";
@@ -41,10 +40,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
 import Comments from "./Comments";
+import useAuthorize from "./useAuthorize";
 
 export default function Question({ questionId }) {
   const router = useRouter();
-  const { user, loading } = useAuthContext();
 
   const [question, setQuestion] = useState();
   const [newChoiceId, setNewChoiceId] = useState();
@@ -59,6 +58,8 @@ export default function Question({ questionId }) {
 
   const [showComments, setShowComments] = useState(false);
 
+  const { user, loading } = useAuthorize();
+
   // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   useEffect(() => {
     return () => {
@@ -70,13 +71,6 @@ export default function Question({ questionId }) {
   }, [currentToastId]);
 
   const form = useForm({});
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/signin");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
 
   async function fetchQuestion() {
     const body = { uid: user.uid };
@@ -92,11 +86,11 @@ export default function Question({ questionId }) {
   }
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && user) {
       fetchQuestion();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [loading, user]);
 
   useEffect(() => {
     const channel = pusher_client.subscribe(`${questionId}`);
@@ -111,7 +105,7 @@ export default function Question({ questionId }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   });
 
-  if (loading || !question) {
+  if (loading || !user || !question) {
     return <LoadingWebsite />;
   }
 

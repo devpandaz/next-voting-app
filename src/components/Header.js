@@ -75,6 +75,8 @@ export default function Header() {
               </Link>
             </Button>
           )}
+        {
+          /*
         {user &&
           (
             <PopoverNotificationCenter colorScheme={"light"}>
@@ -85,6 +87,8 @@ export default function Header() {
               )}
             </PopoverNotificationCenter>
           )}
+        */
+        }
       </div>
     </div>
   );

@@ -9,12 +9,20 @@ export default function Providers({ children }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthContextProvider>
+        {
+          /*
         <NovuProvider
           subscriberId={process.env.NOVU_SUBSCRIBER_ID}
           applicationIdentifier={"gxWba-unrgxi"}
         >
-          {children}
+        */
+        }
+        {children}
+        {
+          /*
         </NovuProvider>
+        */
+        }
       </AuthContextProvider>
     </ThemeProvider>
   );

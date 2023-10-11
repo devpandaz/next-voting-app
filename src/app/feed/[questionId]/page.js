@@ -18,11 +18,20 @@ export async function generateMetadata({ params }) {
       },
     });
   } catch (err) {
+    console.log(err);
     notFound();
   }
 
   return {
     title: question.questionText,
+    openGraph: {
+      title: `Next Voting App by devpandaz - ${question.questionText}`,
+      description:
+        `Come vote for "${question.questionText}" now at Next Voting App!`,
+      images: [{
+        url: question.imageURL,
+      }],
+    },
   };
 }
 

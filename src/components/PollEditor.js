@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useAuthContext } from "@/context/AuthContext";
 import { LoadingWebsite } from "@/app/loading";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -24,10 +23,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useAuthorize from "./useAuthorize";
 
 export default function PollEditor({ toBeEditedQuestionId = null, back }) {
   const router = useRouter();
-  const { user, loading } = useAuthContext();
 
   const [pollTitle, setPollTitle] = useState();
   const [choiceText, setChoiceText] = useState();
@@ -48,19 +47,18 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
   const { toast, dismiss } = useToast();
   // const currentToastId = useRef();
 
+  const { user, loading } = useAuthorize();
+
+  const pathname = usePathname();
+
+  const [fetching, setFetching] = useState(true);
+
   useEffect(() => {
     if (lastChoice.current) {
       lastChoice.current.scrollIntoView();
       choiceInputBox.current.focus();
     }
   }, [lastChoice, choiceInputBox]);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/signin");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
 
   // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   // useEffect(() => {
@@ -72,30 +70,44 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [currentToastId]);
 
-  // check if got toBeEditedQuestionId prop, means editing existing poll
   useEffect(() => {
-    if (toBeEditedQuestionId) {
-      async function fetchExistingQuestion(id) {
-        const body = { uid: user.uid };
+    if (user) {
+      if (pathname === "/newpoll") {
+        setFetching(false);
+      } else if (pathname === "/editpoll") {
+        if (toBeEditedQuestionId && ["question", "profile"].includes(back)) {
+          async function fetchExistingQuestion(id) {
+            const body = { uid: user.uid };
 
-        const res = await fetch(`/api/questions/${id}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then((res) => res.json());
+            let existingQuestion;
 
-        let existingQuestion = res.question;
-        setPollTitle(existingQuestion.questionText);
-        if (existingQuestion.imageURL !== "") {
-          setFile({ preview: existingQuestion.imageURL });
+            try {
+              const res = await fetch(`/api/questions/${id}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+              }).then((res) => res.json());
+              existingQuestion = res.question;
+            } catch (err) { // invalid toBeEditedQuestionId
+              router.replace("/");
+            }
+
+            setPollTitle(existingQuestion.questionText);
+            if (existingQuestion.imageURL !== "") {
+              setFile({ preview: existingQuestion.imageURL });
+            }
+            existingImageURL.current = existingQuestion.imageURL;
+            setChoices(existingQuestion.choices);
+          }
+          fetchExistingQuestion(toBeEditedQuestionId);
+          setFetching(false);
+        } else { // editpoll url wrong: no toBeEditedQuestionId or no back query
+          router.replace("/");
         }
-        existingImageURL.current = existingQuestion.imageURL;
-        setChoices(existingQuestion.choices);
       }
-      fetchExistingQuestion(toBeEditedQuestionId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toBeEditedQuestionId]);
+  }, [user, toBeEditedQuestionId, back]);
 
   // useEffect(() => {
   //   const beforeunload = (e) => {
@@ -306,7 +318,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
     ));
   }
 
-  if (loading) {
+  if (loading || !user || fetching) {
     return <LoadingWebsite />;
   }
 
