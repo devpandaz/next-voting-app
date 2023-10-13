@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Share, Trash2 } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
 import QuestionContextMenu from "./QuestionContextMenu";
@@ -38,9 +38,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import Comments from "./Comments";
 import useAuthorize from "./useAuthorize";
+import { useTheme } from "next-themes";
+import { v4 as uuidv4 } from "uuid";
 
 export default function Question({ questionId }) {
   const router = useRouter();
@@ -59,6 +69,8 @@ export default function Question({ questionId }) {
   const [showComments, setShowComments] = useState(false);
 
   const { user, loading } = useAuthorize();
+
+  const { theme } = useTheme();
 
   // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   useEffect(() => {
@@ -144,6 +156,33 @@ export default function Question({ questionId }) {
             {user.uid === question.user.uid &&
               (
                 <>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="mr-0.5">
+                        <Share className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Share</DialogTitle>
+                        <DialogDescription>
+                          Share this poll to get more people to vote!
+                        </DialogDescription>
+                      </DialogHeader>
+                      <span
+                        className="rounded-md hover:cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
+                        onClick={() => {
+                          navigator.clipboard.writeText(window.location);
+                          toast({
+                            title: "Link copied to clipboard",
+                            duration: 2000,
+                          });
+                        }}
+                      >
+                        {window.location.href}
+                      </span>
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     className="mr-0.5"
                     variant="ghost"
@@ -371,7 +410,7 @@ export default function Question({ questionId }) {
           </Button>
         )}
       {showComments &&
-        <Comments />}
+        <Comments theme={theme} key={uuidv4()} />}
     </div>
   );
 }

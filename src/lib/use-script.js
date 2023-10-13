@@ -64,7 +64,7 @@ function useScript(params) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url]);
+  }, [url, theme]);
   return status;
 }
 

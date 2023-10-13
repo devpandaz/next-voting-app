@@ -1,11 +1,8 @@
 import React, { useRef } from "react";
-
 import useScript from "../lib/use-script";
-import { useTheme } from "next-themes";
 
-const Comments = () => {
+export default function Comments({ theme }) {
   const comment = useRef(null);
-  const { theme } = useTheme();
 
   const status = useScript({
     url: "https://utteranc.es/client.js",
@@ -17,6 +14,4 @@ const Comments = () => {
   });
 
   return <div ref={comment}></div>;
-};
-
-export default Comments;
+}
