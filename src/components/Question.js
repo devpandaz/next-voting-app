@@ -153,36 +153,37 @@ export default function Question({ questionId }) {
         <CardHeader>
           <CardTitle className="flex items-center">
             <span className="break-words grow">{question.questionText}</span>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="mr-0.5">
+                  <Share className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Share</DialogTitle>
+                  <DialogDescription>
+                    Share this poll to get more people to vote!
+                  </DialogDescription>
+                </DialogHeader>
+                <span
+                  className="rounded-md hover:cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location);
+                    toast({
+                      title: "Link copied to clipboard",
+                      duration: 2000,
+                    });
+                  }}
+                >
+                  {window.location.href}
+                </span>
+              </DialogContent>
+            </Dialog>
+
             {user.uid === question.user.uid &&
               (
                 <>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="mr-0.5">
-                        <Share className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
-                      <DialogHeader>
-                        <DialogTitle>Share</DialogTitle>
-                        <DialogDescription>
-                          Share this poll to get more people to vote!
-                        </DialogDescription>
-                      </DialogHeader>
-                      <span
-                        className="rounded-md hover:cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
-                        onClick={() => {
-                          navigator.clipboard.writeText(window.location);
-                          toast({
-                            title: "Link copied to clipboard",
-                            duration: 2000,
-                          });
-                        }}
-                      >
-                        {window.location.href}
-                      </span>
-                    </DialogContent>
-                  </Dialog>
                   <Button
                     className="mr-0.5"
                     variant="ghost"
