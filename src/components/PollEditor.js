@@ -443,42 +443,54 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
                                   />
                                 )}
                               {toBeEditedQuestionId
-                                ? (
-                                  <AlertDialog>
-                                    <AlertDialogTrigger>
-                                      <Button
-                                        variant="ghost"
-                                        className="self-center"
-                                        size="icon"
-                                      >
-                                        <X className="h-4 w-4" />
-                                      </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                      <AlertDialogHeader>
-                                        <AlertDialogTitle>
-                                          Are you sure you want to delete this
-                                          choice?
-                                        </AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                          The vote count for this choice would
-                                          all be lost.
-                                        </AlertDialogDescription>
-                                      </AlertDialogHeader>
-                                      <AlertDialogFooter>
-                                        <AlertDialogCancel>
-                                          Cancel
-                                        </AlertDialogCancel>
-                                        <AlertDialogAction
-                                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                          onClick={() => removeChoice(index)}
+                                ? (choice.id
+                                  ? (
+                                    <AlertDialog>
+                                      <AlertDialogTrigger>
+                                        <Button
+                                          variant="ghost"
+                                          className="self-center"
+                                          size="icon"
                                         >
-                                          Yes
-                                        </AlertDialogAction>
-                                      </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                  </AlertDialog>
-                                )
+                                          <X className="h-4 w-4" />
+                                        </Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>
+                                            Are you sure you want to delete this
+                                            choice?
+                                          </AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            This is an existing choice. If you
+                                            delete this choice, the vote count
+                                            for this choice would all be lost.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>
+                                            Cancel
+                                          </AlertDialogCancel>
+                                          <AlertDialogAction
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                            onClick={() => removeChoice(index)}
+                                          >
+                                            Yes
+                                          </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  )
+                                  : (
+                                    <Button
+                                      variant="ghost"
+                                      className="self-center"
+                                      size="icon"
+                                      onClick={() => removeChoice(index)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  ))
                                 : (
                                   <Button
                                     variant="ghost"

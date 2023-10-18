@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Pencil, Share, Trash2 } from "lucide-react";
+import { Menu, Pencil, Share, Trash2 } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { pusher_client } from "@/lib/pusher_client";
 import QuestionContextMenu from "./QuestionContextMenu";
@@ -51,6 +51,11 @@ import Comments from "./Comments";
 import { useTheme } from "next-themes";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthContext } from "@/context/AuthContext";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export default function Question({ questionId }) {
   const router = useRouter();
@@ -122,6 +127,8 @@ export default function Question({ questionId }) {
   const editButton = useRef();
   const deleteButton = useRef();
 
+  const menuForSmScreens = useRef();
+
   const onScroll = () => {
     if (window.scrollY > 80) {
       shareButton.current?.classList.add("hidden");
@@ -132,6 +139,8 @@ export default function Question({ questionId }) {
         pollTitle.current.style.left = "49.4px";
         pollTitle.current.style.textAlign = "center";
       }
+
+      menuForSmScreens.current?.classList.add("hidden");
     } else {
       shareButton.current?.classList.remove("hidden");
       editButton.current?.classList.remove("hidden");
@@ -141,6 +150,8 @@ export default function Question({ questionId }) {
         pollTitle.current.style.left = "0";
         pollTitle.current.style.textAlign = "left";
       }
+
+      menuForSmScreens.current?.classList.remove("hidden");
     }
   };
 
@@ -194,7 +205,7 @@ export default function Question({ questionId }) {
           <CardTitle className="flex items-center sticky top-0 backdrop-blur-lg">
             <span
               ref={pollTitle}
-              className={`w-[225px] md:w-[350px] text-base md:text-2xl ${
+              className={`w-[225px] md:w-[320px] text-base md:text-2xl ${
                 question.questionText.length >= 100 ? "text-sm md:text-lg" : ""
               }`}
               style={{
@@ -205,14 +216,16 @@ export default function Question({ questionId }) {
             >
               {question.questionText}
             </span>
-            <div className="flex flex-col md:flex-row w-fit">
+
+            {/* for middle screens */}
+            <div className="hidden grow md:flex justify-center">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
                     ref={shareButton}
                     variant="ghost"
                     size="icon"
-                    className={user && user.uid === question.user.uid
+                    className={(user && user.uid === question.user.uid)
                       ? "mr-0.5"
                       : "ml-auto"}
                   >
@@ -246,7 +259,6 @@ export default function Question({ questionId }) {
                   <>
                     <Button
                       ref={editButton}
-                      className="mr-0.5"
                       variant="ghost"
                       size="icon"
                       onClick={() => {
@@ -325,6 +337,139 @@ export default function Question({ questionId }) {
                   </>
                 )}
             </div>
+            {/* end */}
+
+            {/* for sm screens: phone */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  ref={menuForSmScreens}
+                  variant="ghost"
+                  className="md:hidden"
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-fit">
+                <>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        ref={shareButton}
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <Share className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>Share</DialogTitle>
+                        <DialogDescription>
+                          Share this poll to get more people to vote!
+                        </DialogDescription>
+                      </DialogHeader>
+                      <span
+                        className="hover:cursor-pointer rounded-md hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast({
+                            title: "Link copied to clipboard",
+                            duration: 2000,
+                          });
+                        }}
+                      >
+                        {window.location.href}
+                      </span>
+                    </DialogContent>
+                  </Dialog>
+
+                  {(user && user.uid === question.user.uid) &&
+                    (
+                      <>
+                        <Button
+                          ref={editButton}
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            router.push(
+                              `/editpoll?id=${question.id}&back=question`,
+                            );
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger>
+                            <Button
+                              ref={deleteButton}
+                              variant="ghost"
+                              size="icon"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this poll?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={async () => {
+                                  try {
+                                    if (question.imageURL) {
+                                      // delete image file from vercel blob store
+                                      await fetch("/api/image/delete", {
+                                        method: "POST",
+                                        headers: {
+                                          "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify({
+                                          url: question.imageURL,
+                                        }),
+                                      });
+                                    }
+                                    await fetch("/api/delete-poll/", {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        questionId: question.id,
+                                      }),
+                                    });
+                                    toast({
+                                      title: "Poll delete successfull. ",
+                                      duration: 2500,
+                                    });
+                                    // this toast should stay even after routing to other pages
+                                    currentToastId.current = null;
+                                    router.push("/feed");
+                                  } catch (err) {
+                                    const { id } = toast({
+                                      variant: "destructive",
+                                      title: "Poll delete failed. ",
+                                    });
+                                    currentToastId.current = id;
+                                  }
+                                }}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </>
+                    )}
+                </>
+              </PopoverContent>
+            </Popover>
+            {/* end */}
           </CardTitle>
           <CardDescription>
             Posted by{" "}
