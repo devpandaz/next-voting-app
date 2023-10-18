@@ -48,9 +48,9 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import Comments from "./Comments";
-import useAuthorize from "./useAuthorize";
 import { useTheme } from "next-themes";
 import { v4 as uuidv4 } from "uuid";
+import { useAuthContext } from "@/context/AuthContext";
 
 export default function Question({ questionId }) {
   const router = useRouter();
@@ -68,7 +68,7 @@ export default function Question({ questionId }) {
 
   const [showComments, setShowComments] = useState(false);
 
-  const { user, loading } = useAuthorize();
+  const { user, loading } = useAuthContext();
 
   const { theme } = useTheme();
 
@@ -85,7 +85,7 @@ export default function Question({ questionId }) {
   const form = useForm({});
 
   async function fetchQuestion() {
-    const body = { uid: user.uid };
+    const body = { uid: user?.uid };
     const res = await fetch(`/api/questions/${questionId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -98,11 +98,11 @@ export default function Question({ questionId }) {
   }
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading) {
       fetchQuestion();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  }, [loading]);
 
   useEffect(() => {
     const channel = pusher_client.subscribe(`${questionId}`);
@@ -115,13 +115,53 @@ export default function Question({ questionId }) {
       pusher_client.unsubscribe(`${questionId}`);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, []);
 
-  if (loading || !user || !question) {
+  const pollTitle = useRef();
+  const shareButton = useRef();
+  const editButton = useRef();
+  const deleteButton = useRef();
+
+  const onScroll = () => {
+    if (window.scrollY > 80) {
+      shareButton.current?.classList.add("hidden");
+      editButton.current?.classList.add("hidden");
+      deleteButton.current?.classList.add("hidden");
+
+      if (pollTitle.current !== undefined) {
+        pollTitle.current.style.left = "49.4px";
+        pollTitle.current.style.textAlign = "center";
+      }
+    } else {
+      shareButton.current?.classList.remove("hidden");
+      editButton.current?.classList.remove("hidden");
+      deleteButton.current?.classList.remove("hidden");
+
+      if (pollTitle.current !== undefined) {
+        pollTitle.current.style.left = "0";
+        pollTitle.current.style.textAlign = "left";
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  if (loading || !question) {
     return <LoadingWebsite />;
   }
 
   async function onSubmit() {
+    if (!user) {
+      router.push(`/auth/signin?redirect=/feed/${questionId}`);
+      return;
+    }
+
     if (newChoiceId !== currentChoiceId) {
       setSubmitting(true);
       try {
@@ -149,125 +189,152 @@ export default function Question({ questionId }) {
 
   return (
     <div className="w-fit mx-auto flex flex-col mb-2">
-      <Card className="my-2 border-2 rounded-xl border-slate-300 w-80">
+      <Card className="my-2 border-2 rounded-xl border-slate-300 w-80 md:w-[500px]">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <span className="break-words grow">{question.questionText}</span>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="mr-0.5">
-                  <Share className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Share</DialogTitle>
-                  <DialogDescription>
-                    Share this poll to get more people to vote!
-                  </DialogDescription>
-                </DialogHeader>
-                <span
-                  className="rounded-md hover:cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800"
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location);
-                    toast({
-                      title: "Link copied to clipboard",
-                      duration: 2000,
-                    });
-                  }}
-                >
-                  {window.location.href}
-                </span>
-              </DialogContent>
-            </Dialog>
-
-            {user.uid === question.user.uid &&
-              (
-                <>
+          <CardTitle className="flex items-center sticky top-0 backdrop-blur-lg">
+            <span
+              ref={pollTitle}
+              className={`w-[225px] md:w-[350px] text-base md:text-2xl ${
+                question.questionText.length >= 100 ? "text-sm md:text-lg" : ""
+              }`}
+              style={{
+                position: "relative",
+                left: "0",
+                transition: "left 500ms ease",
+              }}
+            >
+              {question.questionText}
+            </span>
+            <div className="flex flex-col md:flex-row w-fit">
+              <Dialog>
+                <DialogTrigger asChild>
                   <Button
-                    className="mr-0.5"
+                    ref={shareButton}
                     variant="ghost"
                     size="icon"
+                    className={user && user.uid === question.user.uid
+                      ? "mr-0.5"
+                      : "ml-auto"}
+                  >
+                    <Share className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Share</DialogTitle>
+                    <DialogDescription>
+                      Share this poll to get more people to vote!
+                    </DialogDescription>
+                  </DialogHeader>
+                  <span
+                    className="hover:cursor-pointer rounded-md hover:bg-accent hover:text-accent-foreground"
                     onClick={() => {
-                      router.push(`/editpoll?id=${question.id}&back=question`);
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "Link copied to clipboard",
+                        duration: 2000,
+                      });
                     }}
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this poll?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          onClick={async () => {
-                            try {
-                              if (question.imageURL) {
-                                // delete image file from vercel blob store
-                                await fetch("/api/image/delete", {
+                    {window.location.href}
+                  </span>
+                </DialogContent>
+              </Dialog>
+
+              {(user && user.uid === question.user.uid) &&
+                (
+                  <>
+                    <Button
+                      ref={editButton}
+                      className="mr-0.5"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        router.push(
+                          `/editpoll?id=${question.id}&back=question`,
+                        );
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Button
+                          ref={deleteButton}
+                          variant="ghost"
+                          size="icon"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this poll?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={async () => {
+                              try {
+                                if (question.imageURL) {
+                                  // delete image file from vercel blob store
+                                  await fetch("/api/image/delete", {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      url: question.imageURL,
+                                    }),
+                                  });
+                                }
+                                await fetch("/api/delete-poll/", {
                                   method: "POST",
                                   headers: {
                                     "Content-Type": "application/json",
                                   },
                                   body: JSON.stringify({
-                                    url: question.imageURL,
+                                    questionId: question.id,
                                   }),
                                 });
+                                toast({
+                                  title: "Poll delete successfull. ",
+                                  duration: 2500,
+                                });
+                                // this toast should stay even after routing to other pages
+                                currentToastId.current = null;
+                                router.push("/feed");
+                              } catch (err) {
+                                const { id } = toast({
+                                  variant: "destructive",
+                                  title: "Poll delete failed. ",
+                                });
+                                currentToastId.current = id;
                               }
-                              await fetch("/api/delete-poll/", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  questionId: question.id,
-                                }),
-                              });
-                              toast({
-                                title: "Poll delete successfull. ",
-                                duration: 2500,
-                              });
-                              // this toast should stay even after routing to other pages
-                              currentToastId.current = null;
-                              router.push("/feed");
-                            } catch (err) {
-                              const { id } = toast({
-                                variant: "destructive",
-                                title: "Poll delete failed. ",
-                              });
-                              currentToastId.current = id;
-                            }
-                          }}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </>
-              )}
+                            }}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </>
+                )}
+            </div>
           </CardTitle>
           <CardDescription>
             Posted by{" "}
             <Link
               href={`/profile/${
-                user.uid === question.user.uid ? "" : question.user.uid
+                user?.uid === question.user.uid ? "" : question.user.uid
               }`} // go to own profile if its own question, else go to public profile of the author
               className="underline text-yellow-500 dark:text-red-300"
             >
-              {user.uid === question.user.uid
+              {user?.uid === question.user.uid
                 ? "you"
                 : question.user.displayName}
             </Link>{" "}
@@ -278,7 +345,7 @@ export default function Question({ questionId }) {
                 <img
                   src={question.imageURL}
                   alt="poll image"
-                  className="mt-2"
+                  className="mt-2 mx-auto"
                 />
               )}
           </CardDescription>
@@ -287,7 +354,7 @@ export default function Question({ questionId }) {
           {question.choices.length > 0
             ? (
               <QuestionContextMenu
-                uid={user.uid}
+                uid={user?.uid}
                 questionId={questionId}
                 currentChoiceId={currentChoiceId}
                 submitting={submitting}
@@ -303,7 +370,7 @@ export default function Question({ questionId }) {
                         control={form.control}
                         name="choice"
                         render={({ field }) => (
-                          <FormItem className="space-y-3 max-h-96 overflow-auto">
+                          <FormItem className="space-y-3">
                             {/*<FormLabel>{question.questionText}</FormLabel>*/}
                             <FormControl>
                               <RadioGroup
@@ -328,14 +395,16 @@ export default function Question({ questionId }) {
                                           <FormLabel className="font-normal break-words">
                                             {choice.choiceText}
                                             <Progress
-                                              value={parseInt(
-                                                choicesWithUsersCount.filter(
-                                                  (stats) =>
-                                                    stats.id === choice.id,
-                                                )[0]
-                                                  ._count
-                                                  .users,
-                                              ) / totalVotes * 100}
+                                              value={currentChoiceId
+                                                ? parseInt( // voted dy then only can see results
+                                                  choicesWithUsersCount.filter(
+                                                    (stats) =>
+                                                      stats.id === choice.id,
+                                                  )[0]
+                                                    ._count
+                                                    .users,
+                                                ) / totalVotes * 100
+                                                : 0}
                                             />
                                           </FormLabel>
                                         </div>

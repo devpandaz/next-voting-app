@@ -41,7 +41,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
 
   const [indexOfChoiceBeingEdited, setIndexOfChoiceBeingEdited] = useState();
 
-  const lastChoice = useRef();
+  // const [lastChoice, setLastChoice] = useState();
   const choiceInputBox = useRef();
 
   const { toast, dismiss } = useToast();
@@ -53,12 +53,11 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
 
   const [fetching, setFetching] = useState(true);
 
-  useEffect(() => {
-    if (lastChoice.current) {
-      lastChoice.current.scrollIntoView();
-      choiceInputBox.current.focus();
-    }
-  }, [lastChoice, choiceInputBox]);
+  // useEffect(() => {
+  //   lastChoice.current?.scrollIntoView();
+  //   choiceInputBox.current?.focus();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [lastChoice.current]);
 
   // dismiss toast when component unmounts so that it does not stay, for example after routing to other pages
   // useEffect(() => {
@@ -128,6 +127,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
     ) {
       setChoices([...choices, { choiceText: choiceText }]);
       setChoiceText("");
+      window.scrollTo(0, document.body.scrollHeight);
     }
   }
 
@@ -327,7 +327,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
       <h1 className="text-xl text-center my-3">
         {toBeEditedQuestionId ? "Edit" : "Create new"} poll
       </h1>
-      <div className="flex flex-col border-2 border-slate-950 dark:border-slate-50 rounded-lg px-8 py-4 w-80">
+      <div className="flex flex-col border-2 border-slate-950 dark:border-slate-50 rounded-lg px-8 py-4 w-80 md:w-[500px]">
         <Label className="text-lg mb-1 self-center">
           Poll title
         </Label>
@@ -357,7 +357,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
                 id="choice"
                 value={choiceText}
                 disabled={choices.length >= 10}
-                className="mr-2 w-[12.8rem]"
+                className="mr-2 w-[400px]"
                 placeholder="e.g. JIF"
                 onChange={(e) => {
                   setChoiceText(e.target.value);
@@ -377,7 +377,7 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
             </div>
           </div>
         </form>
-        <div id="choices" className="max-h-80 overflow-auto space-y-1 mb-2">
+        <div id="choices" className="space-y-1 mb-2">
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="droppable">
               {(droppableProvided) => (
@@ -405,14 +405,11 @@ export default function PollEditor({ toBeEditedQuestionId = null, back }) {
                             <div
                               key={index}
                               className="flex border-2 border-yellow-300 dark:border-red-300 rounded-lg"
-                              ref={index == choices.length - 1
-                                ? lastChoice
-                                : null}
                             >
                               {indexOfChoiceBeingEdited !== index &&
                                 (
                                   <span
-                                    className="break-words w-52 mr-2 self-center pl-2"
+                                    className="break-words w-[400px] mr-2 self-center pl-2"
                                     onClick={() => {
                                       setIndexOfChoiceBeingEdited(index);
                                     }}

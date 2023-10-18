@@ -1,25 +1,13 @@
 "use client";
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/context/AuthContext";
 import { LoadingWebsite } from "@/app/loading";
 import { Button } from "./ui/button";
 
 export default function Feed() {
-  const router = useRouter();
-  const { user, loading } = useAuthContext();
-
   const [questions, setQuestions] = useState();
   const lastQuestionId = useRef(null);
   const [hasMore, setHasMore] = useState();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/auth/signin");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
 
   async function fetchQuestions() {
     try {
@@ -42,24 +30,22 @@ export default function Feed() {
   }
 
   useEffect(() => {
-    if (!loading) {
-      fetchQuestions();
-    }
+    fetchQuestions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, []);
 
-  if (loading || !questions) {
+  if (!questions) {
     return <LoadingWebsite />;
   }
 
   return (
     <div className="w-fit mx-auto flex flex-col">
-      <h1 className="font-bold text-center text-2xl mb-2">Public Feed</h1>
+      <h1 className="font-bold text-center text-2xl my-2">Public Feed</h1>
 
       {questions.length === 0 ? <p>No poll yet.</p> : (
         <>
           <Suspense>
-            <div className="mx-10 max-w-md flex flex-col space-between-1">
+            <div className="max-w-md flex flex-col space-between-1">
               {questions &&
                 questions.map((question) => (
                   <Link
@@ -69,7 +55,7 @@ export default function Feed() {
                   >
                     <Button
                       variant="link"
-                      className="hover:text-yellow-500 dark:hover:text-red-300 grow"
+                      className="text-left hover:text-yellow-500 dark:hover:text-red-300 grow h-fit"
                     >
                       {question.questionText}
                     </Button>

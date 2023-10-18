@@ -1,6 +1,6 @@
 {
   "name": "next-voting-app",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.2.0",
-    "@novu/notification-center": "^0.19.0",
     "@prisma/client": "^5.2.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.4",

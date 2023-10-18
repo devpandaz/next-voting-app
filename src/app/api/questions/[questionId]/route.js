@@ -25,7 +25,7 @@ export async function POST(req, { params }) {
 
       users: {
         some: {
-          uid: uid,
+          uid: uid ? uid : "",
         },
       },
     },

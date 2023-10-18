@@ -84,10 +84,13 @@ export default function ImageUploader({ file, setFile }) {
       <div>
         <div
           {...getRootProps()}
-          className={`bg-slate-200 dark:bg-slate-700 flex flex-col items-center justify-center rounded-md ${
+          className={`
+${!file && "h-40"}
+bg-slate-200 dark:bg-slate-700 flex flex-col items-center justify-center rounded-lg ${
             !file &&
             "p-1 border-2 border-slate-900 dark:border-slate-100 border-dashed hover:cursor-pointer"
-          } mb-1 text-center whitespace-pre-line`}
+          }
+mb-1 text-center whitespace-pre-line`}
           ref={uploaderArea}
         >
           <input {...getInputProps()} />
@@ -110,15 +113,15 @@ or click here`}
         </div>
         {file &&
           (
-            <div className="grid grid-flow-col justify-stretch">
+            <div className="grid grid-flow-col justify-around">
               <Button
                 onClick={open}
-                className="text-black bg-yellow-300 hover:bg-yellow-300/90 dark:bg-red-300 dark:hover:bg-red-300/90 rounded-md"
+                className="md:w-36 text-black bg-yellow-300 hover:bg-yellow-300/90 dark:bg-red-300 dark:hover:bg-red-300/90 rounded-lg"
               >
                 Change
               </Button>
               <Button
-                className="text-black bg-yellow-300 hover:bg-yellow-300/90 dark:bg-red-300 dark:hover:bg-red-300/90 rounded-md"
+                className="md:w-36 text-black bg-yellow-300 hover:bg-yellow-300/90 dark:bg-red-300 dark:hover:bg-red-300/90 rounded-lg"
                 onClick={() => {
                   setFile(null);
                 }}

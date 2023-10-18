@@ -6,22 +6,24 @@ import { LoadingWebsite } from "./loading";
 
 export default function Home() {
   const router = useRouter();
-  const { user, loading } = useAuthContext();
+  // const { user, loading } = useAuthContext();
+  //
+  // useEffect(() => {
+  //   if (!loading) {
+  //     if (user) {
+  //       router.push("/feed");
+  //     } else {
+  //       router.push("/home");
+  //     }
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loading, user]);
 
-  useEffect(() => {
-    if (!loading) {
-      if (user) {
-        router.push("/feed");
-      } else {
-        router.push("/home");
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user]);
+  // if (loading || !user) {
+  //   return <LoadingWebsite />;
+  // }
 
-  if (loading || !user) {
-    return <LoadingWebsite />;
-  }
+  router.push("/feed");
 
   return <></>;
 }

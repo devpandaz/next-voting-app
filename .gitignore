@@ -36,3 +36,6 @@ next-env.d.ts
 
 /src/app/api/list-all-blobs
 /src/app/api/delete-all-blobs
+
+/src/app/api/og
+opengraph-image.js

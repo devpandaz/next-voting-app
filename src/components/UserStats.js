@@ -46,7 +46,7 @@ export function UserPolls({ uid }) {
   useEffect(() => {
     fetchPolls();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, []);
 
   if (!questions) {
     // data not loaded yet
@@ -73,23 +73,26 @@ export function UserPolls({ uid }) {
     return (
       <>
         {alertBoxes}
-        <ul className="list-disc max-h-[40vh] overflow-auto">
+        <ul className="list-disc max-h-[40vh] overflow-auto space-y-1.5">
           {questions.map((question) => (
-            <li key={question.id} className="flex items-center">
+            <li
+              key={question.id}
+              className="flex items-center border-2 border-black dark:border-white rounded-lg"
+            >
               <Link
                 href={`/feed/${question.id}`}
-                className="grow hover:underline hover:text-yellow-500 dark:hover:text-red-300"
+                className="ml-2 min-h-[40px] w-[125px] text-sm md:text-base md:w-[300px] hover:text-yellow-500 dark:hover:text-red-300 block flex items-center"
               >
                 <span>
                   {question.questionText}
                 </span>
               </Link>
-              {user.uid == uid &&
+              {(user && user.uid == uid) &&
                 (
                   <>
                     <Button
                       disabled={deletingPoll}
-                      className="mr-0.5"
+                      className="ml-auto mr-0.5"
                       variant="ghost"
                       size="icon"
                       onClick={() => {
@@ -214,7 +217,7 @@ export function UserVotes({ uid }) {
   useEffect(() => {
     fetchVotes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, []);
 
   if (!votes) {
     // data not loaded yet
@@ -224,15 +227,24 @@ export function UserVotes({ uid }) {
   // data loaded already
   if (votes.length !== 0) {
     return (
-      <ul className="list-disc">
+      <ul className="list-disc max-h-[40vh] overflow-auto space-y-1.5">
         {votes.map((vote) => (
-          <li key={vote.id}>
+          <li
+            key={vote.id}
+            className="border-2 border-black dark:border-white rounded-lg"
+          >
             <Link
               href={`/feed/${vote.question.id}`}
-              className="text-sm hover:underline hover:text-yellow-500 dark:hover:text-red-300"
+              className="block mx-2 min-h-[40px] md:w-[350px] hover:text-yellow-500 dark:hover:text-red-300 flex"
             >
-              &quot;{vote.choiceText}&quot; in &quot;{vote.question
-                .questionText}&quot;
+              <span className="self-center">
+                &quot;{vote.choiceText}&quot;{" "}
+                <span className="text-lime-500 dark:text-red-500 font-bold">
+                  in
+                </span>{" "}
+                &quot;{vote.question
+                  .questionText}&quot;
+              </span>
             </Link>
           </li>
         ))}

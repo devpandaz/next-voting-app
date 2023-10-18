@@ -39,7 +39,7 @@ export default function QuestionContextMenu(
               });
             }
           }}
-          disabled={!currentChoiceId || submitting}
+          disabled={!uid || !currentChoiceId || submitting}
         >
           Retract vote
         </ContextMenuItem>

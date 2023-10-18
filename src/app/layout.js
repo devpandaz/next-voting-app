@@ -7,9 +7,9 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Next Voting App",
+  title: "Next Voting App by devpandaz",
   description:
-    "Inspired by the Django voting app tutorial, but better, with NextJS. ",
+    "Inspired by the Django Voting App tutorial, but better, with NextJS. ",
 };
 
 export default function RootLayout({ children }) {
