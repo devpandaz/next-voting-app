@@ -2,7 +2,18 @@ import { NextResponse } from "next/server";
 import prisma from "@/prisma/prisma";
 
 export async function POST(req) {
-  let { lastQuestionId } = await req.json();
+  let { lastQuestionId, searchQuery } = await req.json();
+
+  if (searchQuery !== "null") {
+    const questions = await prisma.question.findMany({
+      where: {
+        questionText: {
+          search: searchQuery,
+        },
+      },
+    }); // search results
+    return NextResponse.json({ questions });
+  }
   const takeAmount = 30;
   let questions;
   let hasMore;

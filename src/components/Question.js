@@ -346,6 +346,7 @@ export default function Question({ questionId }) {
                   ref={menuForSmScreens}
                   variant="ghost"
                   className="md:hidden"
+                  size="icon"
                 >
                   <Menu className="h-4 w-4" />
                 </Button>

@@ -70,7 +70,7 @@ export default function Profile({ uidForPublicProfile = null }) {
         <Card className="border-2 rounded-xl border-slate-300">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <div className="grow">
+              <div className="flex items-center grow">
                 <span>
                   {profile.displayName}
                 </span>

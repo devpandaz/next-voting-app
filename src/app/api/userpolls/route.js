@@ -7,6 +7,9 @@ export async function POST(req) {
     where: {
       uid: uid,
     },
+    orderBy: {
+      timePublished: "desc",
+    },
   });
 
   return NextResponse.json({ questions });

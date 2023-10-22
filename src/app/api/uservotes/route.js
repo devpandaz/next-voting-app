@@ -19,6 +19,9 @@ export async function POST(req) {
             },
           },
         },
+        orderBy: {
+          id: "desc",
+        },
       },
     },
   })).votes;
